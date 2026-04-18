@@ -7,7 +7,7 @@ Usage:
     uvicorn backend.main:app --reload       # development (with hot-reload)
     streamlit run streamlit_app/app.py      # Streamlit UI
 
-GitHub: https://github.com/kakarot-oncloud/openmep
+GitHub: https://github.com/kakarot-oncloud/openmep-suite
 Author: Luquman A
 """
 
