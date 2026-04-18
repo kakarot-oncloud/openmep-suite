@@ -45,7 +45,7 @@ Run all three services on your own machine for development or single-user evalua
 ### Install
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git
+git clone https://github.com/kakarot-oncloud/openmep-suite.git
 cd openmep
 
 # Python dependencies
@@ -105,7 +105,7 @@ docker compose version    # Docker Compose v2+
 ### Install and start
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git
+git clone https://github.com/kakarot-oncloud/openmep-suite.git
 cd openmep
 
 # Copy and configure the environment file
@@ -238,7 +238,7 @@ npm --version
 sudo useradd -m -s /bin/bash openmep
 sudo su - openmep
 
-git clone https://github.com/kakarot-oncloud/openmep.git ~/openmep
+git clone https://github.com/kakarot-oncloud/openmep-suite.git ~/openmep
 cd ~/openmep
 
 # Python deps
@@ -423,7 +423,7 @@ Zero-install. Runs the full OpenMEP stack (FastAPI + Node.js + Streamlit) in a G
 
 ### Quick start
 
-Click the badge in the README or go to [colab.research.google.com](https://colab.research.google.com) → **File → Open notebook → GitHub** → paste `kakarot-oncloud/openmep` → select `colab_launcher.ipynb`.
+Click the badge in the README or go to [colab.research.google.com](https://colab.research.google.com) → **File → Open notebook → GitHub** → paste `kakarot-oncloud/openmep-suite` → select `colab_launcher.ipynb`.
 
 Then press **Runtime → Run all** (`Ctrl+F9`). Wait ~90 seconds. A public URL is printed at the end.
 
@@ -673,7 +673,7 @@ pip install --upgrade pip
 ### Step 3 — Clone and install dependencies
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git ~/openmep
+git clone https://github.com/kakarot-oncloud/openmep-suite.git ~/openmep
 cd ~/openmep
 
 # Python dependencies

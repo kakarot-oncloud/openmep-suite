@@ -11,8 +11,8 @@
 
 **Open-source MEP engineering calculation suite · 4 regions · 26 modules · 7 platform features · production-ready**
 
-[![Release](https://img.shields.io/github/v/release/kakarot-oncloud/openmep?label=release&color=2563eb)](https://github.com/kakarot-oncloud/openmep/releases)
-[![CI](https://github.com/kakarot-oncloud/openmep/actions/workflows/ci.yml/badge.svg)](https://github.com/kakarot-oncloud/openmep/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/kakarot-oncloud/openmep-suite?label=release&color=2563eb)](https://github.com/kakarot-oncloud/openmep-suite/releases)
+[![CI](https://github.com/kakarot-oncloud/openmep-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/kakarot-oncloud/openmep-suite/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
@@ -21,9 +21,9 @@
 [![Regions](https://img.shields.io/badge/Regions-4%20%28GCC%20%7C%20Europe%20%7C%20India%20%7C%20Australia%29-0096C7)](#region-support)
 [![Modules](https://img.shields.io/badge/Modules-26-0096C7)](#modules)
 [![Platform Features](https://img.shields.io/badge/Platform%20Features-7-6d28d9)](#platform-features)
-[![codecov](https://codecov.io/gh/kakarot-oncloud/openmep/graph/badge.svg)](https://codecov.io/gh/kakarot-oncloud/openmep)
+[![codecov](https://codecov.io/gh/kakarot-oncloud/openmep-suite/graph/badge.svg)](https://codecov.io/gh/kakarot-oncloud/openmep-suite)
 
-[**🌐 Project Website**](https://kakarot-oncloud.github.io/openmep/) · [**📄 API Docs**](docs/API_DOCS.md) · [**📦 Deployment Guide**](docs/DEPLOYMENT.md) · [**📖 User Guide**](docs/USER_GUIDE.md) · [**📐 Standards Reference**](docs/STANDARDS_REFERENCE.md)
+[**🌐 Project Website**](https://kakarot-oncloud.github.io/openmep-suite/) · [**📄 API Docs**](docs/API_DOCS.md) · [**📦 Deployment Guide**](docs/DEPLOYMENT.md) · [**📖 User Guide**](docs/USER_GUIDE.md) · [**📐 Standards Reference**](docs/STANDARDS_REFERENCE.md)
 
 </div>
 
@@ -269,7 +269,7 @@ Full standards reference → [**docs/STANDARDS_REFERENCE.md**](docs/STANDARDS_RE
 ## Quick Start
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git
+git clone https://github.com/kakarot-oncloud/openmep-suite.git
 cd openmep
 pip install -r requirements.txt
 
@@ -303,7 +303,7 @@ Once all containers are healthy:
 
 **Google Colab — zero install:**
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kakarot-oncloud/openmep/blob/main/colab_launcher.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kakarot-oncloud/openmep-suite/blob/main/colab_launcher.ipynb)
 
 ---
 
@@ -499,8 +499,8 @@ pytest --cov=backend --cov-report=term-missing
 
 ## Bugs & Feature Requests
 
-- **Bug?** [Open an issue](https://github.com/kakarot-oncloud/openmep/issues/new?template=bug_report.md) — include module name, input values, and expected vs actual output.
-- **New feature or region?** [Start a discussion](https://github.com/kakarot-oncloud/openmep/discussions).
+- **Bug?** [Open an issue](https://github.com/kakarot-oncloud/openmep-suite/issues/new?template=bug_report.md) — include module name, input values, and expected vs actual output.
+- **New feature or region?** [Start a discussion](https://github.com/kakarot-oncloud/openmep-suite/discussions).
 - **Security issue?** See [SECURITY.md](SECURITY.md) — do not open a public issue for vulnerabilities.
 
 ---
@@ -508,7 +508,7 @@ pytest --cov=backend --cov-report=term-missing
 ## Contributing
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git
+git clone https://github.com/kakarot-oncloud/openmep-suite.git
 cd openmep
 git checkout -b feature/my-feature
 pip install -r requirements.txt -r requirements-dev.txt
@@ -552,6 +552,6 @@ See [CHANGELOG.md](CHANGELOG.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · 
 
 **OpenMEP — Engineering calculations should be open.**
 
-[GitHub](https://github.com/kakarot-oncloud/openmep) · [Project Website](https://kakarot-oncloud.github.io/openmep/) · [Discussions](https://github.com/kakarot-oncloud/openmep/discussions) · [Issues](https://github.com/kakarot-oncloud/openmep/issues)
+[GitHub](https://github.com/kakarot-oncloud/openmep-suite) · [Project Website](https://kakarot-oncloud.github.io/openmep-suite/) · [Discussions](https://github.com/kakarot-oncloud/openmep-suite/discussions) · [Issues](https://github.com/kakarot-oncloud/openmep-suite/issues)
 
 </div>

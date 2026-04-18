@@ -398,7 +398,7 @@ def cover_page(st):
         alignment=TA_CENTER, leading=18)))
     story.append(sp(6))
     story.append(Paragraph(
-        "GitHub: github.com/kakarot-oncloud/openmep", st["cov_meta"]))
+        "GitHub: github.com/kakarot-oncloud/openmep-suite", st["cov_meta"]))
     story.append(sp(6))
     story.append(Paragraph(
         "Copyright © 2025 Luquman A  ·  MIT License  ·  Version 0.1.0",
@@ -451,7 +451,7 @@ def section_01(st):
         SP(0.2),
         h2(st, "1.1  Project Name & Core Identity"),
         body(st, "<b>Full name:</b> OpenMEP — Open Mechanical, Electrical & Plumbing Engineering Suite"),
-        body(st, "<b>Repository:</b> github.com/kakarot-oncloud/openmep"),
+        body(st, "<b>Repository:</b> github.com/kakarot-oncloud/openmep-suite"),
         body(st, "<b>Author:</b> Luquman A (@kakarot-oncloud)"),
         body(st, "<b>License:</b> MIT — Free to use, modify, and distribute"),
         body(st, "<b>Version:</b> 0.1.0 (stable, production-ready for single-user deployment)"),
@@ -1725,7 +1725,7 @@ def section_08(st):
         "# Prerequisites: Python 3.11+ and pip installed",
         "",
         "# 1. Clone the repository",
-        "git clone https://github.com/kakarot-oncloud/openmep.git",
+        "git clone https://github.com/kakarot-oncloud/openmep-suite.git",
         "cd openmep",
         "",
         "# 2. Create a virtual environment (recommended)",
@@ -1862,7 +1862,7 @@ def section_08(st):
         "sudo apt-get update && sudo apt-get install -y docker.io docker-compose",
         "",
         "# 2. Clone the repo",
-        "git clone https://github.com/kakarot-oncloud/openmep.git /opt/openmep",
+        "git clone https://github.com/kakarot-oncloud/openmep-suite.git /opt/openmep",
         "cd /opt/openmep",
         "",
         "# 3. Configure environment",
@@ -1897,7 +1897,7 @@ def section_08(st):
         "#    Sign in with GitHub",
         "",
         "# 3. Click 'New app'",
-        "#    Repository: kakarot-oncloud/openmep",
+        "#    Repository: kakarot-oncloud/openmep-suite",
         "#    Branch: main",
         "#    Main file path: streamlit_app/app.py",
         "",
@@ -1922,7 +1922,7 @@ def section_09(st):
         SP(0.2),
         h2(st, "9.1  Repository Details"),
         dt(st, ["Item", "Value"], [
-            ["URL",           "https://github.com/kakarot-oncloud/openmep"],
+            ["URL",           "https://github.com/kakarot-oncloud/openmep-suite"],
             ["Owner",         "Luquman A (@kakarot-oncloud)"],
             ["Visibility",    "Public"],
             ["License",       "MIT -- Copyright 2025 Luquman A"],
@@ -1945,7 +1945,7 @@ def section_09(st):
     ]
     story += cb(st, "Clone and run the project:", [
         "# Clone",
-        "git clone https://github.com/kakarot-oncloud/openmep.git",
+        "git clone https://github.com/kakarot-oncloud/openmep-suite.git",
         "cd openmep",
         "",
         "# Install",
@@ -1967,14 +1967,14 @@ def section_09(st):
     ]
     story += cb(st, "Standard contribution workflow:", [
         "# 1. Fork the repository on GitHub",
-        "#    Click the 'Fork' button on github.com/kakarot-oncloud/openmep",
+        "#    Click the 'Fork' button on github.com/kakarot-oncloud/openmep-suite",
         "",
         "# 2. Clone YOUR fork",
         "git clone https://github.com/YOUR-USERNAME/openmep.git",
         "cd openmep",
         "",
         "# 3. Add the upstream remote (to pull future updates)",
-        "git remote add upstream https://github.com/kakarot-oncloud/openmep.git",
+        "git remote add upstream https://github.com/kakarot-oncloud/openmep-suite.git",
         "",
         "# 4. Create a feature branch",
         "#    Branch naming: feature/<description>, bugfix/<description>, docs/<description>",
@@ -2024,7 +2024,7 @@ def section_10(st):
     ])
     story += [SP(0.2), Paragraph("Step 2: Clone the repository", st["h3"])]
     story += cb(st, None, [
-        "git clone https://github.com/kakarot-oncloud/openmep.git",
+        "git clone https://github.com/kakarot-oncloud/openmep-suite.git",
         "cd openmep",
     ])
     story += [SP(0.2), Paragraph("Step 3: Create a virtual environment (strongly recommended)", st["h3"])]
@@ -2911,7 +2911,7 @@ def back_cover_page(st):
     story.append(sp(28))
     for line in [
         "Made by  <b>Luquman A</b>",
-        "github.com/kakarot-oncloud/openmep",
+        "github.com/kakarot-oncloud/openmep-suite",
         "MIT License  ·  Copyright © 2025 Luquman A",
         "Version 0.1.0  ·  4 Regions  ·  26 Modules  ·  35 API Endpoints",
     ]:

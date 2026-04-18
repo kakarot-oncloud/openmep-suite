@@ -63,7 +63,7 @@ def draw_header_footer(canvas: Canvas, doc):
     canvas.rect(0, 1.2*cm, PAGE_W, 0.12*cm, fill=1, stroke=0)
     canvas.setFillColor(WHITE)
     canvas.setFont("Helvetica", 8)
-    canvas.drawString(MARGIN, 0.45*cm, "© 2025 Luquman A | MIT License | github.com/kakarot-oncloud/openmep")
+    canvas.drawString(MARGIN, 0.45*cm, "© 2025 Luquman A | MIT License | github.com/kakarot-oncloud/openmep-suite")
     canvas.drawRightString(PAGE_W - MARGIN, 0.45*cm, f"Page {doc.page}")
     canvas.restoreState()
 

@@ -20,10 +20,10 @@ authors:
     alias: "kakarot-oncloud"
 identifiers:
   - type: url
-    value: "https://github.com/kakarot-oncloud/openmep"
+    value: "https://github.com/kakarot-oncloud/openmep-suite"
     description: GitHub Repository
-repository-code: "https://github.com/kakarot-oncloud/openmep"
-url: "https://github.com/kakarot-oncloud/openmep"
+repository-code: "https://github.com/kakarot-oncloud/openmep-suite"
+url: "https://github.com/kakarot-oncloud/openmep-suite"
 license: MIT
 version: "0.1.0"
 date-released: "2026-03-31"

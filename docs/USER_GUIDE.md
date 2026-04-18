@@ -626,4 +626,4 @@ Ensure `reportlab` is installed: `pip install reportlab`
 
 ---
 
-*For further assistance, open a GitHub issue at [github.com/kakarot-oncloud/openmep](https://github.com/kakarot-oncloud/openmep).*
+*For further assistance, open a GitHub issue at [github.com/kakarot-oncloud/openmep-suite](https://github.com/kakarot-oncloud/openmep-suite).*

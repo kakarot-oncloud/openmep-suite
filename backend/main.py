@@ -64,7 +64,7 @@ Configure allowed origins via the `ALLOWED_ORIGINS` environment variable.
     version="0.2.0",
     contact={
         "name": "OpenMEP Engineering Suite",
-        "url": "https://github.com/kakarot-oncloud/openmep",
+        "url": "https://github.com/kakarot-oncloud/openmep-suite",
         "email": "info@openmep.engineering",
     },
     license_info={

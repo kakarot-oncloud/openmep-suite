@@ -237,4 +237,4 @@ with st.sidebar:
                 st.page_link(page_path, label=page_label)
 
     st.markdown("---")
-    st.markdown(f"<div style='color:{SILVER}; font-size:0.75rem; text-align:center; line-height:1.8;'>OpenMEP v0.2.0<br>MIT License<br><a href='https://github.com/kakarot-oncloud/openmep' style='color:{TEAL};'>GitHub</a></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='color:{SILVER}; font-size:0.75rem; text-align:center; line-height:1.8;'>OpenMEP v0.2.0<br>MIT License<br><a href='https://github.com/kakarot-oncloud/openmep-suite' style='color:{TEAL};'>GitHub</a></div>", unsafe_allow_html=True)

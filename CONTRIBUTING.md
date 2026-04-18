@@ -25,7 +25,7 @@ By participating in this project, you agree to abide by the [Code of Conduct](CO
 ## Getting Started
 
 ```bash
-git clone https://github.com/kakarot-oncloud/openmep.git
+git clone https://github.com/kakarot-oncloud/openmep-suite.git
 cd openmep
 pip install -r requirements.txt -r requirements-dev.txt
 
@@ -165,4 +165,4 @@ Every new calculation module must include:
 
 ## Contribution Recognition
 
-All contributors are listed in the project's [GitHub contributors graph](https://github.com/kakarot-oncloud/openmep/graphs/contributors). Significant contributions (new modules, new regions) are called out in the release notes.
+All contributors are listed in the project's [GitHub contributors graph](https://github.com/kakarot-oncloud/openmep-suite/graphs/contributors). Significant contributions (new modules, new regions) are called out in the release notes.
