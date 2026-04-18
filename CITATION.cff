@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use OpenMEP in your work or research, please cite it as below."
+type: software
+title: "OpenMEP: Open-Source MEP Engineering Calculation Suite"
+abstract: >
+  OpenMEP is a free and open-source mechanical, electrical, plumbing and fire
+  protection (MEP) engineering calculation suite. It provides 26 calculation
+  modules covering cable sizing, voltage drop, cooling load, duct sizing,
+  pipe sizing, drainage, sprinkler design, fire pump sizing, and more.
+  Regional standard databases cover GCC/UAE (BS 7671, DEWA/ADDC/KAHRAMAA),
+  Europe/UK (BS 7671:2018+A2:2022, IEC 60364), India (IS 732, IS 3961, NBC 2016),
+  and Australia/NZ (AS/NZS 3000, AS/NZS 3008.1.1:2017, AS 2118, AS 3500).
+  The backend is a FastAPI REST API with 35+ endpoints and a Streamlit web UI.
+  Docker deployment and Google Colab support are included. Every calculation
+  cites the applicable standard and clause, and PDF reports are generated for
+  audit and submission purposes.
+authors:
+  - family-names: "A"
+    given-names: "Luquman"
+    alias: "kakarot-oncloud"
+identifiers:
+  - type: url
+    value: "https://github.com/kakarot-oncloud/openmep"
+    description: GitHub Repository
+repository-code: "https://github.com/kakarot-oncloud/openmep"
+url: "https://github.com/kakarot-oncloud/openmep"
+license: MIT
+version: "0.1.0"
+date-released: "2026-03-31"
+doi: 10.5281/zenodo.XXXXXXX
+keywords:
+  - MEP engineering
+  - cable sizing
+  - BS 7671
+  - electrical calculations
+  - HVAC
+  - cooling load
+  - ASHRAE
+  - plumbing
+  - fire protection
+  - NFPA
+  - GCC
+  - engineering tools
+  - FastAPI
+  - Streamlit
+  - open source
+  - IS 3961
+  - AS/NZS 3008

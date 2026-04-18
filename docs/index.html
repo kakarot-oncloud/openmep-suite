@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>OpenMEP — Open-Source MEP Engineering Calculation Suite</title>
+<meta name="description" content="Open-source MEP engineering calculation suite. 26 modules, 4 regions, 35+ API endpoints. Cable sizing, cooling loads, pipe sizing, fire protection. FastAPI + Streamlit. BS 7671 · IS 3961 · AS/NZS 3008 · ASHRAE · NFPA."/>
+<meta name="keywords" content="MEP engineering, cable sizing, cooling load, pipe sizing, fire protection, BS 7671, IS 3961, AS/NZS 3008, ASHRAE, NFPA, FastAPI, open source"/>
+<meta name="author" content="Luquman A"/>
+<meta property="og:title" content="OpenMEP — Open-Source MEP Engineering Suite"/>
+<meta property="og:description" content="26 modules · 4 regions · 35+ API endpoints. Free, open-source, standard-compliant."/>
+<meta property="og:image" content="https://raw.githubusercontent.com/kakarot-oncloud/openmep/main/docs/screenshots/dashboard_module_grid.png"/>
+<meta property="og:url" content="https://kakarot-oncloud.github.io/openmep/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:#030B18;color:#E2EAF4;
+  font-family:'Inter',system-ui,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+code{font-family:'JetBrains Mono',monospace}
+
+/* ── DESIGN TOKENS ────────────────────────────────────────────────────────── */
+:root{
+  --bg:       #030B18;
+  --bg-2:     #080F1E;
+  --surface:  rgba(255,255,255,0.035);
+  --surface-h:rgba(255,255,255,0.06);
+  --border:   rgba(255,255,255,0.07);
+  --border-h: rgba(0,180,216,0.4);
+  --teal:     #00B4D8;
+  --teal-dim: #0096C7;
+  --teal-glow:rgba(0,180,216,0.15);
+  --white:    #F0F6FC;
+  --text:     #C9D8EA;
+  --muted:    #6B82A0;
+  --gutter:   clamp(1.25rem,6vw,6rem);
+  --radius:   12px;
+}
+
+/* ── SCROLLBAR ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,180,216,0.3);border-radius:3px}
+
+/* ── NOISE OVERLAY ────────────────────────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity:0.4;
+}
+
+/* ── NAV ──────────────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--gutter);height:60px;
+  background:rgba(3,11,24,0.8);
+  backdrop-filter:blur(20px) saturate(1.5);
+  border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  font-size:1.05rem;font-weight:800;letter-spacing:-.02em;color:var(--white);
+}
+.nav-logo-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--teal-dim),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;color:#030B18;
+}
+.nav-links{display:flex;align-items:center;gap:0.25rem}
+.nav-links a{
+  padding:.4rem .75rem;border-radius:6px;
+  font-size:.83rem;font-weight:500;color:var(--muted);
+  transition:color .2s,background .2s;
+}
+.nav-links a:hover{color:var(--white);background:var(--surface)}
+.nav-gh{
+  display:flex;align-items:center;gap:.45rem;
+  padding:.4rem 1rem;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  font-size:.83rem;font-weight:600;color:var(--white);
+  transition:border-color .2s,background .2s;
+}
+.nav-gh:hover{border-color:var(--teal);background:var(--teal-glow)}
+.nav-gh svg{width:16px;height:16px;fill:currentColor}
+
+/* ── HERO ─────────────────────────────────────────────────────────────────── */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:8rem var(--gutter) 5rem;
+  text-align:center;overflow:hidden;
+}
+/* Animated gradient mesh */
+.hero-bg{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(80px);
+  animation:float 8s ease-in-out infinite;
+}
+.orb-1{
+  width:500px;height:500px;top:-100px;right:-100px;
+  background:radial-gradient(circle,rgba(0,150,199,.18) 0%,transparent 70%);
+  animation-delay:0s;
+}
+.orb-2{
+  width:400px;height:400px;bottom:-80px;left:-80px;
+  background:radial-gradient(circle,rgba(0,180,216,.12) 0%,transparent 70%);
+  animation-delay:-3s;
+}
+.orb-3{
+  width:300px;height:300px;top:40%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(0,120,175,.1) 0%,transparent 70%);
+  animation-delay:-6s;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
+}
+/* Grid lines */
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 30%,transparent 100%);
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:.35rem .9rem;border-radius:999px;
+  background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.2);
+  font-size:.75rem;font-weight:600;color:var(--teal);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.hero-eyebrow-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--teal);animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{
+  font-size:clamp(2.4rem,6vw,4.2rem);
+  font-weight:900;letter-spacing:-.04em;
+  line-height:1.08;
+  margin-bottom:1.5rem;max-width:820px;
+}
+.grad-text{
+  background:linear-gradient(135deg,#E2EAF4 0%,var(--teal) 55%,#5EEAD4 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.15rem);color:var(--text);
+  max-width:600px;margin:0 auto 2.5rem;font-weight:400;line-height:1.7;
+}
+.hero-actions{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;
+  margin-bottom:3rem;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.7rem 1.6rem;border-radius:8px;
+  font-size:.9rem;font-weight:600;transition:all .2s;
+}
+.btn-primary{
+  background:var(--teal);color:#030B18;
+  box-shadow:0 0 0 0 var(--teal-glow);
+}
+.btn-primary:hover{background:#22D3F0;box-shadow:0 0 24px var(--teal-glow);transform:translateY(-1px)}
+.btn-ghost{
+  background:var(--surface);color:var(--white);
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{border-color:var(--teal);background:var(--teal-glow);transform:translateY(-1px)}
+.hero-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-badges img{height:20px}
+
+/* ── STATS BAR ────────────────────────────────────────────────────────────── */
+.stats-bar{
+  position:relative;
+  display:flex;flex-wrap:wrap;justify-content:center;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--bg-2);
+}
+.stat-item{
+  flex:1;min-width:140px;max-width:220px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:1.75rem 1rem;
+  border-right:1px solid var(--border);
+  transition:background .2s;
+}
+.stat-item:last-child{border-right:none}
+.stat-item:hover{background:var(--surface)}
+.stat-num{
+  font-size:2.6rem;font-weight:900;
+  letter-spacing:-.04em;line-height:1;
+  color:var(--teal);
+}
+.stat-label{
+  font-size:.72rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.1em;margin-top:.3rem;
+}
+
+/* ── SECTIONS ─────────────────────────────────────────────────────────────── */
+.section{padding:6rem var(--gutter)}
+.section-alt{background:var(--bg-2)}
+.section-center{text-align:center}
+.eyebrow{
+  font-size:.72rem;font-weight:700;color:var(--teal);
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:.6rem;
+}
+.section-h{
+  font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;
+  letter-spacing:-.03em;line-height:1.15;margin-bottom:.75rem;
+}
+.section-p{
+  color:var(--text);font-size:1rem;line-height:1.75;
+  max-width:580px;margin-bottom:3rem;
+}
+.section-center .section-p{margin-left:auto;margin-right:auto}
+
+/* ── TOUR / GIF ───────────────────────────────────────────────────────────── */
+.tour-wrap{
+  max-width:1060px;margin:0 auto;
+  border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);
+  box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(0,180,216,.06);
+}
+.tour-chrome{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.65rem 1rem;
+  background:rgba(8,15,30,.9);
+  border-bottom:1px solid var(--border);
+}
+.chrome-dot{width:12px;height:12px;border-radius:50%}
+.chrome-url{
+  flex:1;margin:0 .75rem;
+  padding:.25rem .75rem;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:6px;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);
+}
+.tour-wrap img,.tour-wrap video{width:100%;display:block}
+.tour-tabs{
+  display:flex;gap:0;margin-bottom:1rem;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;width:fit-content;margin:0 auto 1.5rem;
+}
+.tour-tab{
+  padding:.45rem 1.2rem;font-size:.78rem;font-weight:600;
+  color:var(--muted);background:transparent;border:none;
+  cursor:pointer;transition:all .2s;
+}
+.tour-tab.active{background:var(--teal);color:#030B18}
+
+/* ── FEATURES ─────────────────────────────────────────────────────────────── */
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.feature-cell{
+  background:var(--bg);
+  padding:2rem 1.75rem;
+  transition:background .25s;
+  position:relative;
+}
+.feature-cell::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 0 0,var(--teal-glow),transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.feature-cell:hover{background:var(--bg-2)}
+.feature-cell:hover::before{opacity:1}
+.feature-icon{font-size:1.5rem;margin-bottom:1rem}
+.feature-h{
+  font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--white);
+}
+.feature-p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.feature-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:1rem}
+.chip{
+  padding:.2rem .55rem;border-radius:4px;
+  background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.18);
+  color:var(--teal);font-size:.68rem;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── HOW IT WORKS ─────────────────────────────────────────────────────────── */
+.steps-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;
+  counter-reset:steps;
+}
+.step-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:2rem;
+  position:relative;counter-increment:steps;
+  transition:border-color .25s,transform .25s;
+}
+.step-card:hover{border-color:rgba(0,180,216,.35);transform:translateY(-3px)}
+.step-num{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--teal-dim),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:800;color:#030B18;margin-bottom:1.25rem;
+}
+.step-h{font-size:1rem;font-weight:700;margin-bottom:.45rem;color:var(--white)}
+.step-p{font-size:.83rem;color:var(--muted);line-height:1.65}
+/* Connector lines */
+.step-card:not(:last-child)::after{
+  content:'→';
+  position:absolute;top:2.6rem;right:-1.1rem;
+  font-size:1.2rem;color:rgba(0,180,216,.3);
+  z-index:1;
+}
+
+/* ── REGIONS ──────────────────────────────────────────────────────────────── */
+.regions-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;
+}
+.region-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.75rem;
+  transition:border-color .25s,background .25s;
+  display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;
+}
+.region-card:hover{border-color:rgba(0,180,216,.3);background:var(--surface-h)}
+.region-flag{font-size:2rem;line-height:1}
+.region-name{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.2rem}
+.region-countries{font-size:.78rem;color:var(--muted);margin-bottom:.75rem}
+.region-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+
+/* ── QUICK START ──────────────────────────────────────────────────────────── */
+.quickstart-wrap{
+  display:grid;grid-template-columns:1fr 1.15fr;gap:3rem;align-items:center;
+}
+.qs-list{display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem}
+.qs-item{
+  display:flex;align-items:flex-start;gap:.75rem;
+}
+.qs-num{
+  min-width:24px;height:24px;border-radius:6px;
+  background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:var(--teal);margin-top:1px;
+}
+.qs-text{font-size:.9rem;color:var(--text);line-height:1.6}
+.qs-text strong{color:var(--white);font-weight:600}
+.qs-links{display:flex;flex-wrap:wrap;gap:.75rem}
+.code-window{
+  background:#010810;border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.code-titlebar{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.6rem 1rem;background:rgba(255,255,255,.03);
+  border-bottom:1px solid var(--border);
+}
+.dot{width:11px;height:11px;border-radius:50%}
+.code-name{
+  margin-left:.25rem;font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--muted);
+}
+.code-body{padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.85;overflow-x:auto}
+.c{color:#3d5a78}   /* comment */
+.cmd{color:#79C0FF} /* command */
+.arg{color:#D2A8FF} /* argument/flag */
+.str{color:#A5D6FF} /* string */
+.ok{color:#3FB950}  /* success */
+
+/* ── API TABLE ────────────────────────────────────────────────────────────── */
+.api-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+table.api{width:100%;border-collapse:collapse;font-size:.82rem}
+table.api th{
+  padding:.75rem 1.25rem;text-align:left;
+  background:rgba(0,180,216,.06);border-bottom:1px solid var(--border);
+  font-size:.7rem;font-weight:700;color:var(--teal);
+  text-transform:uppercase;letter-spacing:.09em;
+}
+table.api td{
+  padding:.7rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04);
+  color:var(--text);vertical-align:middle;
+}
+table.api tr:last-child td{border-bottom:none}
+table.api tr:hover td{background:rgba(255,255,255,.025)}
+.badge-method{
+  display:inline-block;padding:.15rem .5rem;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:.67rem;font-weight:700;
+}
+.post{background:rgba(0,180,216,.15);color:var(--teal)}
+.get{background:rgba(63,185,80,.12);color:#3FB950}
+.ep{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--white)}
+
+/* ── FOOTER ───────────────────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);
+  padding:3rem var(--gutter);
+  background:#010810;
+  display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;
+}
+.footer-left .logo{
+  font-size:1rem;font-weight:800;letter-spacing:-.02em;
+  color:var(--white);margin-bottom:.35rem;
+}
+.footer-left .logo span{color:var(--teal)}
+.footer-copy{font-size:.78rem;color:var(--muted);line-height:1.6}
+.footer-copy a{color:var(--teal);transition:opacity .2s}
+.footer-copy a:hover{opacity:.75}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:flex-end}
+.footer-links a{font-size:.8rem;color:var(--muted);transition:color .2s}
+.footer-links a:hover{color:var(--white)}
+
+/* ── ANIMATIONS (reveal on scroll) ───────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .features-grid{grid-template-columns:1fr 1fr}
+  .steps-row{grid-template-columns:1fr}
+  .step-card::after{display:none}
+  .regions-grid{grid-template-columns:1fr}
+  .quickstart-wrap{grid-template-columns:1fr}
+  footer{grid-template-columns:1fr}
+  .footer-links{justify-content:flex-start}
+}
+@media(max-width:640px){
+  .features-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">M</div>
+    OpenMEP
+  </a>
+  <div class="nav-links">
+    <a href="#tour">Tour</a>
+    <a href="#features">Features</a>
+    <a href="#regions">Regions</a>
+    <a href="#start">Quick Start</a>
+    <a href="#api">API</a>
+  </div>
+  <a href="https://github.com/kakarot-oncloud/openmep" target="_blank" rel="noopener" class="nav-gh">
+    <svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    GitHub
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-eyebrow" style="position:relative;z-index:1">
+    <span class="hero-eyebrow-dot"></span>
+    Open-source · v0.1.0 · MIT License
+  </div>
+
+  <h1 style="position:relative;z-index:1">
+    <span class="grad-text">MEP Engineering<br>Calculations.</span><br>
+    <span style="color:rgba(226,234,244,.55)">Open. Compliant. Free.</span>
+  </h1>
+
+  <p class="hero-sub" style="position:relative;z-index:1">
+    Cable sizing, cooling loads, pipe sizing, fire protection —
+    fully standard-compliant across 4 regions, with one-click PDF reports.
+    No licence fees. No locked formats.
+  </p>
+
+  <div class="hero-actions" style="position:relative;z-index:1">
+    <a href="https://github.com/kakarot-oncloud/openmep" target="_blank" rel="noopener" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      Star on GitHub
+    </a>
+    <a href="#start" class="btn btn-ghost">Quick Start →</a>
+    <a href="#tour" class="btn btn-ghost">Watch Tour</a>
+  </div>
+
+  <div class="hero-badges" style="position:relative;z-index:1">
+    <img src="https://img.shields.io/github/v/release/kakarot-oncloud/openmep?style=flat-square&color=00B4D8&labelColor=0a1628" alt="Release"/>
+    <img src="https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square&logo=python&labelColor=0a1628" alt="Python"/>
+    <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&labelColor=0a1628" alt="FastAPI"/>
+    <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square&labelColor=0a1628" alt="MIT"/>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">26</div><div class="stat-label">Modules</div></div>
+  <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Regions</div></div>
+  <div class="stat-item"><div class="stat-num">35<span style="font-size:1.6rem">+</span></div><div class="stat-label">API Endpoints</div></div>
+  <div class="stat-item"><div class="stat-num">194</div><div class="stat-label">Tests Passing</div></div>
+  <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Disciplines</div></div>
+</div>
+
+<!-- TOUR -->
+<section class="section section-center" id="tour">
+  <p class="eyebrow reveal">Product Tour</p>
+  <h2 class="section-h reveal">26 modules · 5 disciplines · 4 regions — every section in 60 seconds</h2>
+  <p class="section-p reveal">Dashboard → Electrical cable sizing with 4-region comparison → Mechanical cooling load → Plumbing → Fire sprinkler &amp; pump → PDF reports. Every value shown is real output from live API calls. No mocks, no placeholders.</p>
+  <div class="tour-tabs">
+    <button class="tour-tab active" onclick="switchTour('video',this)">▶ Video</button>
+    <button class="tour-tab" onclick="switchTour('gif',this)">GIF</button>
+  </div>
+  <div class="tour-wrap reveal">
+    <div class="tour-chrome">
+      <div class="chrome-dot" style="background:#FF5F57"></div>
+      <div class="chrome-dot" style="background:#FEBC2E"></div>
+      <div class="chrome-dot" style="background:#28C840"></div>
+      <div class="chrome-url">OpenMEP — UI Product Tour — All 26 Modules</div>
+    </div>
+    <video
+      id="tour-video"
+      autoplay loop muted playsinline
+      poster="https://raw.githubusercontent.com/kakarot-oncloud/openmep/main/docs/assets/openmep_demo.gif"
+      style="width:100%;display:block"
+    >
+      <source src="https://kakarot-oncloud.github.io/openmep/assets/openmep_demo.mp4" type="video/mp4"/>
+      <img src="https://raw.githubusercontent.com/kakarot-oncloud/openmep/main/docs/assets/openmep_demo.gif" alt="OpenMEP UI product tour — all 26 modules across 5 disciplines"/>
+    </video>
+    <img
+      id="tour-gif"
+      src="https://raw.githubusercontent.com/kakarot-oncloud/openmep/main/docs/assets/openmep_demo.gif"
+      alt="OpenMEP UI product tour — dashboard, electrical, mechanical, plumbing, fire, reports"
+      loading="lazy"
+      style="width:100%;display:none"
+    />
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section section-alt" id="features">
+  <div class="section-center">
+    <p class="eyebrow reveal">What's Inside</p>
+    <h2 class="section-h reveal">26 modules across 5 disciplines</h2>
+    <p class="section-p reveal" style="margin-bottom:2.5rem">Every calculation cites its standard and clause. All numerical tables are embedded — no external lookups, works fully offline.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-cell">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-h">Electrical — 9 Modules</div>
+      <div class="feature-p">Cable sizing with full derating chain, voltage drop, maximum demand, short circuit, lighting design, PF correction, generator sizing, UPS, panel schedule.</div>
+      <div class="feature-tags">
+        <span class="chip">BS 7671</span><span class="chip">IEC 60364</span><span class="chip">IS 3961</span><span class="chip">AS/NZS 3008</span>
+      </div>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-icon">❄️</div>
+      <div class="feature-h">Mechanical / HVAC — 4 Modules</div>
+      <div class="feature-p">Cooling load with per-component heat gain breakdown, duct sizing, heating load, and ventilation rate. Switches design conditions by region automatically.</div>
+      <div class="feature-tags">
+        <span class="chip">ASHRAE 90.1</span><span class="chip">CIBSE</span><span class="chip">EN 12831</span><span class="chip">SMACNA</span>
+      </div>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-icon">💧</div>
+      <div class="feature-h">Plumbing — 6 Modules</div>
+      <div class="feature-p">Pipe sizing by fixture units, drainage design, pump sizing (Darcy-Weisbach), hot water system, rainwater harvesting, water storage tank.</div>
+      <div class="feature-tags">
+        <span class="chip">BS EN 806</span><span class="chip">IS 1172</span><span class="chip">BS EN 12056</span><span class="chip">AS 3500</span>
+      </div>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-icon">🔥</div>
+      <div class="feature-h">Fire Protection — 4 Modules</div>
+      <div class="feature-p">Sprinkler design area and density, fire pump sizing, fire storage tank, standpipe system — with hazard classification and authority compliance stamp.</div>
+      <div class="feature-tags">
+        <span class="chip">NFPA 13</span><span class="chip">NFPA 20</span><span class="chip">BS EN 12845</span><span class="chip">BS 9990</span>
+      </div>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-icon">📋</div>
+      <div class="feature-h">Reports &amp; Compliance — 3 Modules</div>
+      <div class="feature-p">PDF calc sheet with letterhead and sign-off block. BOQ in FIDIC / NRM2 / CPWD / AIQS format. Multi-standard compliance checker across all 4 regions.</div>
+      <div class="feature-tags">
+        <span class="chip">A4 PDF</span><span class="chip">Excel BOQ</span><span class="chip">Multi-region</span>
+      </div>
+    </div>
+    <div class="feature-cell">
+      <div class="feature-icon">🔌</div>
+      <div class="feature-h">Full REST API — 35+ Endpoints</div>
+      <div class="feature-p">Every calculation is a JSON endpoint. Swagger UI at <code style="color:var(--teal);font-size:.8em">/docs</code>. Integrate into BIM tools, Excel, or custom workflows. No external service needed.</div>
+      <div class="feature-tags">
+        <span class="chip">FastAPI</span><span class="chip">Pydantic v2</span><span class="chip">OpenAPI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section-center" id="how">
+  <p class="eyebrow reveal">How It Works</p>
+  <h2 class="section-h reveal">From parameters to PDF in three steps</h2>
+  <p class="section-p reveal" style="margin-bottom:2.5rem">No account needed. No cloud dependency. Start the backend, open the UI, get results.</p>
+  <div class="steps-row reveal">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-h">Select Region &amp; Calculator</div>
+      <div class="step-p">Choose from GCC, Europe/UK, India, or Australia. Pick any of the 26 modules. Design codes, correction factors, and compliance limits load automatically.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-h">Enter Your Parameters</div>
+      <div class="step-p">Input load data, dimensions, or system details. The UI guides you through required fields. Hit Calculate — results appear in under a second.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-h">Export a Professional Report</div>
+      <div class="step-p">One click generates an A4 PDF with letterhead, design basis, step-by-step workings, results summary, and an engineer sign-off block — submittal ready.</div>
+    </div>
+  </div>
+</section>
+
+<!-- REGIONS -->
+<section class="section section-alt" id="regions">
+  <p class="eyebrow reveal">Region Coverage</p>
+  <h2 class="section-h reveal">Four complete standards databases</h2>
+  <p class="section-p reveal">Switch region and every table, correction factor, voltage limit, and authority code changes automatically. All numerical data is embedded in the source — no external lookups.</p>
+  <div class="regions-grid reveal">
+    <div class="region-card">
+      <div class="region-flag">🇦🇪 🇸🇦 🇶🇦 🇰🇼</div>
+      <div>
+        <div class="region-name">GCC / UAE</div>
+        <div class="region-countries">UAE · Saudi Arabia · Qatar · Kuwait · Bahrain · Oman</div>
+        <div class="region-chips">
+          <span class="chip">BS 7671</span><span class="chip">IEC 60364</span><span class="chip">DEWA</span><span class="chip">ADDC</span><span class="chip">SEC</span><span class="chip">KAHRAMAA</span><span class="chip">50°C</span>
+        </div>
+      </div>
+    </div>
+    <div class="region-card">
+      <div class="region-flag">🇬🇧 🇩🇪 🇫🇷 🇳🇱</div>
+      <div>
+        <div class="region-name">Europe / UK</div>
+        <div class="region-countries">UK · Germany · France · Netherlands · Ireland · Nordics</div>
+        <div class="region-chips">
+          <span class="chip">BS 7671:2018</span><span class="chip">IEC 60364</span><span class="chip">CIBSE</span><span class="chip">EN 12831</span><span class="chip">30°C</span>
+        </div>
+      </div>
+    </div>
+    <div class="region-card">
+      <div class="region-flag">🇮🇳</div>
+      <div>
+        <div class="region-name">India</div>
+        <div class="region-countries">All states + Union Territories — 9 utility zones</div>
+        <div class="region-chips">
+          <span class="chip">IS 3961</span><span class="chip">IS 732</span><span class="chip">NBC 2016</span><span class="chip">CPWD DSR</span><span class="chip">45°C</span>
+        </div>
+      </div>
+    </div>
+    <div class="region-card">
+      <div class="region-flag">🇦🇺 🇳🇿</div>
+      <div>
+        <div class="region-name">Australia / NZ</div>
+        <div class="region-countries">All states + New Zealand — Ausgrid, Energex, Western Power</div>
+        <div class="region-chips">
+          <span class="chip">AS/NZS 3008</span><span class="chip">AS/NZS 3000</span><span class="chip">AS 3500</span><span class="chip">BCA/NCC</span><span class="chip">40°C</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section class="section" id="start">
+  <div class="quickstart-wrap">
+    <div>
+      <p class="eyebrow reveal">Quick Start</p>
+      <h2 class="section-h reveal">Running in under 2 minutes</h2>
+      <p class="section-p reveal" style="max-width:440px">Python 3.11+ and Git are the only requirements. Works on Linux, macOS, Windows, and Android (Termux).</p>
+      <div class="qs-list reveal">
+        <div class="qs-item">
+          <div class="qs-num">1</div>
+          <div class="qs-text"><strong>Clone &amp; install</strong> — one pip command, no virtualenv required</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">2</div>
+          <div class="qs-text"><strong>Start the API backend</strong> — FastAPI + uvicorn on port 8000</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">3</div>
+          <div class="qs-text"><strong>Start the UI</strong> — Streamlit on port 8501</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">4</div>
+          <div class="qs-text"><strong>Open browser</strong> — <code style="color:var(--teal)">localhost:8501</code> for UI, <code style="color:var(--teal)">localhost:8000/docs</code> for API</div>
+        </div>
+      </div>
+      <div class="qs-links reveal">
+        <a href="https://github.com/kakarot-oncloud/openmep" target="_blank" rel="noopener" class="btn btn-primary">View on GitHub</a>
+        <a href="https://colab.research.google.com/github/kakarot-oncloud/openmep/blob/main/colab_launcher.ipynb" target="_blank" rel="noopener" class="btn btn-ghost">▶ Run in Colab</a>
+      </div>
+    </div>
+    <div class="code-window reveal">
+      <div class="code-titlebar">
+        <div class="dot" style="background:#FF5F57"></div>
+        <div class="dot" style="background:#FEBC2E"></div>
+        <div class="dot" style="background:#28C840"></div>
+        <div class="code-name">bash</div>
+      </div>
+      <div class="code-body">
+<span class="c"># Clone the repository</span>
+<span class="cmd">git</span> clone https://github.com/kakarot-oncloud/openmep.git
+<span class="cmd">cd</span> openmep
+
+<span class="c"># Install dependencies</span>
+<span class="cmd">pip</span> install -r requirements.txt
+
+<span class="c"># Terminal 1 — API backend</span>
+<span class="cmd">uvicorn</span> backend.main:app <span class="arg">--reload</span> <span class="arg">--port</span> <span class="str">8000</span>
+
+<span class="c"># Terminal 2 — Streamlit UI</span>
+<span class="cmd">streamlit</span> run streamlit_app/app.py
+
+<span class="ok">✓  UI  →  http://localhost:8501</span>
+<span class="ok">✓  API →  http://localhost:8000/docs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+<section class="section section-alt section-center" id="api">
+  <p class="eyebrow reveal">REST API</p>
+  <h2 class="section-h reveal">Every calculation is an endpoint</h2>
+  <p class="section-p reveal">Interactive Swagger docs at <code style="color:var(--teal)">/docs</code>. All 35+ endpoints accept JSON and return structured results identically across all four regions.</p>
+  <div class="code-window reveal" style="max-width:800px;margin:0 auto 2rem">
+    <div class="code-titlebar">
+      <div class="dot" style="background:#FF5F57"></div>
+      <div class="dot" style="background:#FEBC2E"></div>
+      <div class="dot" style="background:#28C840"></div>
+      <div class="code-name">curl — cable sizing · GCC / Dubai</div>
+    </div>
+    <div class="code-body">
+<span class="cmd">curl</span> -X POST http://localhost:8000/api/electrical/cable-sizing \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{
+    "region": "gcc",  "sub_region": "dewa",
+    "load_kw": 45,    "power_factor": 0.85,  "phases": 3,
+    "cable_type": "XLPE_CU",  "installation_method": "C",
+    "cable_length_m": 80,     "ambient_temp_c": 40
+  }'</span>
+
+<span class="c">→  { "selected_size_mm2": 16, "voltage_drop_pct": 4.28,</span>
+<span class="c">     "overall_compliant": true, "standard": "BS 7671" }</span>
+    </div>
+  </div>
+  <div class="api-wrap reveal" style="max-width:900px;margin:0 auto">
+    <table class="api">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/electrical/cable-sizing</td><td>Cable sizing with full derating chain</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/electrical/voltage-drop</td><td>Voltage drop per IEC / BS 7671</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/electrical/max-demand</td><td>Maximum demand assessment</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/electrical/short-circuit</td><td>Fault current (IEC 60909)</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/mechanical/cooling-load</td><td>ASHRAE / CIBSE cooling load</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/plumbing/pipe-sizing</td><td>Pipe sizing by fixture units</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/fire/sprinkler-design</td><td>Sprinkler density and design area</td></tr>
+        <tr><td><span class="badge-method post">POST</span></td><td class="ep">/api/reports/pdf</td><td>Generate A4 PDF calculation report</td></tr>
+        <tr><td><span class="badge-method get">GET</span></td><td class="ep">/health</td><td>Service health check</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="reveal" style="margin-top:1.25rem;font-size:.82rem;color:var(--muted)">
+    Full reference with all schemas →
+    <a href="https://github.com/kakarot-oncloud/openmep/blob/main/docs/API_DOCS.md" style="color:var(--teal)">docs/API_DOCS.md</a>
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="logo">Open<span>MEP</span></div>
+    <div class="footer-copy">
+      Made by <a href="https://github.com/kakarot-oncloud" target="_blank" rel="noopener">Luquman A</a>
+      &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Copyright © 2025 Luquman A
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/kakarot-oncloud/openmep" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/kakarot-oncloud/openmep/releases" target="_blank" rel="noopener">Releases</a>
+    <a href="https://github.com/kakarot-oncloud/openmep/blob/main/docs/API_DOCS.md" target="_blank" rel="noopener">API Docs</a>
+    <a href="https://github.com/kakarot-oncloud/openmep/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">Deployment</a>
+    <a href="https://github.com/kakarot-oncloud/openmep/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') })
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' })
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el))
+
+// Tour video / GIF switch
+function switchTour(mode, btn) {
+  document.querySelectorAll('.tour-tab').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  const vid = document.getElementById('tour-video')
+  const gif = document.getElementById('tour-gif')
+  if (mode === 'video') {
+    vid.style.display = 'block'; gif.style.display = 'none'; vid.play()
+  } else {
+    vid.style.display = 'none'; gif.style.display = 'block'
+  }
+}
+</script>
+</body>
+</html>

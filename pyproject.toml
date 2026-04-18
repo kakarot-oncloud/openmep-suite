@@ -1,0 +1,48 @@
+[project]
+name = "openmep"
+version = "0.2.0"
+description = "Open-source MEP engineering calculation suite — cable sizing, cooling loads, pipe sizing, fire protection, and more. Supports GCC (BS 7671 / IEC 60364), Europe/UK, India (IS 732 / IS 3961), and Australia (AS/NZS 3008) with full multi-regional compliance checking."
+authors = [
+    { name = "Luquman A", email = "kakarot-oncloud@users.noreply.github.com" },
+]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "httpx>=0.26.0",
+    "numpy>=1.26.0",
+    "openpyxl>=3.1.0",
+    "pandas>=2.0.0",
+    "plotly>=5.18.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.2.0",
+    "python-dotenv>=1.0.0",
+    "python-multipart>=0.0.9",
+    "reportlab>=4.1.0",
+    "requests>=2.31.0",
+    "slowapi>=0.1.9",
+    "streamlit>=1.30.0",
+    "uvicorn[standard]>=0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.0.0",
+    "httpx>=0.26.0",
+    "ruff>=0.4.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+addopts = "--tb=short"
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

@@ -1,0 +1,92 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.env
+!.env.example
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+coverage.xml
+*.cover
+
+# ── Node.js / TypeScript (root-level workspace files only) ────────────────────
+node_modules/
+.npmrc
+/package.json
+/package-lock.json
+/pnpm-lock.yaml
+/pnpm-workspace.yaml
+/tsconfig.base.json
+/tsconfig.json
+/uv.lock
+*.tsbuildinfo
+.expo/
+.expo-shared/
+
+# ── Workspace internals (not part of the OpenMEP project) ─────────────────────
+.agents/
+.cache/
+.local/
+.config/
+.upm/
+.replit
+.replitignore
+replit.md
+artifacts/
+attached_assets/
+lib/
+frontend/
+.pythonlibs/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.project
+.classpath
+*.launch
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# ── App runtime ───────────────────────────────────────────────────────────────
+*.log
+*.sqlite
+*.db
+tmp/
+out/
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+*.pem
+*.key
+*.cert
+secrets.toml
+
+# Internal workspace scripts
+scripts/package.json
+scripts/post-merge.sh
+scripts/tsconfig.json
+scripts/src/
+scripts/node_modules/

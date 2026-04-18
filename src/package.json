@@ -1,0 +1,34 @@
+{
+  "name": "@openmep/project-management",
+  "version": "0.2.0",
+  "description": "OpenMEP Project Management API — project workspaces, version history, submission packaging, and company branding",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx/esm index.ts",
+    "start": "node --import tsx/esm index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "archiver": "^6.0.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0",
+    "zod": "^3.23.0",
+    "tsx": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/archiver": "^6.0.2",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.7",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
