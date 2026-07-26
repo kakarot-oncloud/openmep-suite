@@ -7,7 +7,9 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-openmep}
       POSTGRES_USER: ${POSTGRES_USER:-openmep}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      # Defaults to a local dev password so `docker compose up` works out of the box.
+      # Set POSTGRES_PASSWORD in .env to a strong value for any real/production deploy.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openmep_local_dev}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
