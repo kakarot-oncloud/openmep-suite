@@ -27,13 +27,13 @@ export const MODULES: ModuleDef[] = [
   { id: 17, name: "Hot Water System", discipline: "Plumbing", standard: "BS EN 806-3", path: "/calc/hot-water-system" },
   { id: 18, name: "Rainwater Harvesting", discipline: "Plumbing", standard: "BS 8515 / AS 3500", path: "/calc/rainwater-harvesting" },
   { id: 19, name: "Tank Sizing", discipline: "Plumbing", standard: "BS EN 806 / IS 1172", path: "/calc/tank-sizing" },
-  { id: 20, name: "Sprinkler Design", discipline: "Fire", standard: "BS EN 12845 / NFPA 13" },
-  { id: 21, name: "Fire Pump Sizing", discipline: "Fire", standard: "BS EN 12845 / NFPA 20" },
-  { id: 22, name: "Fire Storage Tank", discipline: "Fire", standard: "BS 9251 / NBC 2016" },
-  { id: 23, name: "Standpipe System", discipline: "Fire", standard: "NFPA 14 / BS 9990" },
-  { id: 24, name: "BOQ Generator", discipline: "Reports", standard: "FIDIC / NRM2 / CPWD" },
-  { id: 25, name: "Compliance Checker", discipline: "Reports", standard: "Regional limits" },
-  { id: 26, name: "PDF Reports", discipline: "Reports", standard: "A4 calc sheets" },
+  { id: 20, name: "Sprinkler Design", discipline: "Fire", standard: "BS EN 12845 / NFPA 13", path: "/calc/sprinkler" },
+  { id: 21, name: "Fire Pump Sizing", discipline: "Fire", standard: "BS EN 12845 / NFPA 20", path: "/calc/fire-pump" },
+  { id: 22, name: "Fire Storage Tank", discipline: "Fire", standard: "BS 9251 / NBC 2016", path: "/calc/fire-tank" },
+  { id: 23, name: "Standpipe System", discipline: "Fire", standard: "NFPA 14 / BS 9990", path: "/calc/standpipe" },
+  { id: 24, name: "BOQ Generator", discipline: "Reports", standard: "FIDIC / NRM2 / CPWD", path: "/tools/boq" },
+  { id: 25, name: "Compliance Checker", discipline: "Reports", standard: "Regional limits", path: "/tools/compliance" },
+  { id: 26, name: "PDF Reports", discipline: "Reports", standard: "A4 calc sheets", path: "/tools/report" },
 ];
 
 export const DISCIPLINES = ["Electrical", "Mechanical", "Plumbing", "Fire", "Reports"] as const;
