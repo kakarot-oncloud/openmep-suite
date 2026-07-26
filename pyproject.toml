@@ -1,6 +1,6 @@
 [project]
 name = "openmep"
-version = "0.3.0"
+version = "0.4.0"
 description = "Open-source MEP engineering calculation suite — cable sizing, cooling loads, pipe sizing, fire protection, and more. Supports GCC (BS 7671 / IEC 60364), Europe/UK, India (IS 732 / IS 3961), and Australia (AS/NZS 3008) with full multi-regional compliance checking."
 authors = [
     { name = "Luquman A", email = "kakarot-oncloud@users.noreply.github.com" },

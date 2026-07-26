@@ -38,7 +38,7 @@ st.markdown(f"""
         OpenMEP
       </h1>
       <p style="color:{SILVER}; margin:0; font-size:1rem;">
-        Open-Source MEP Engineering Calculation Suite — v0.3.0
+        Open-Source MEP Engineering Calculation Suite — v0.4.0
       </p>
     </div>
   </div>
@@ -234,4 +234,4 @@ with st.sidebar:
                 st.page_link(page_path, label=page_label)
 
     st.markdown("---")
-    st.markdown(f"<div style='color:{SILVER}; font-size:0.75rem; text-align:center; line-height:1.8;'>OpenMEP v0.3.0<br>MIT License<br><a href='https://github.com/kakarot-oncloud/openmep-suite' style='color:{TEAL};'>GitHub</a></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='color:{SILVER}; font-size:0.75rem; text-align:center; line-height:1.8;'>OpenMEP v0.4.0<br>MIT License<br><a href='https://github.com/kakarot-oncloud/openmep-suite' style='color:{TEAL};'>GitHub</a></div>", unsafe_allow_html=True)

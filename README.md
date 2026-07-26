@@ -67,16 +67,18 @@ It replaces spreadsheets with a standards-compliant, API-driven engine:
 - **Audit-ready** — one-click PDF reports with letterhead, step-by-step workings, and an
   engineer sign-off block.
 
-It ships as three cooperating services:
+It ships as cooperating services:
 
 | Service | Tech | Port | Responsibility |
 |---------|------|------|----------------|
 | **Calculation API** | FastAPI (Python 3.11) | `8000` | All 26 engineering calculations |
-| **Web UI** | Streamlit | `8501` | Interactive calculators + report generation |
+| **Web app** | React + TypeScript + Tailwind (Vite) | `3000` | Modern, responsive, light/dark website — the primary UI |
+| **Streamlit UI** | Streamlit | `8501` | Legacy interactive UI (kept during the web-app migration) |
 | **Project API** | Node.js / Express (TypeScript) | `8080` | Project workspaces, versioning, submission packaging, branding |
 
-The Web UI and Project API both call the Calculation API — the Python service is the single
-source of truth for engineering results.
+Every UI calls the Calculation API — the Python service is the single source of truth for
+engineering results. The React **web app** (`frontend/`) is the new default interface:
+fully responsive, light + dark mode, deployable as a static SPA on any VPS.
 
 ---
 
@@ -216,6 +218,12 @@ streamlit run streamlit_app/app.py
 | API (Swagger) | http://localhost:8000/docs |
 | API (ReDoc) | http://localhost:8000/redoc |
 
+The **React web app** (new default UI — responsive, light/dark):
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:5173 (proxies /api → :8000)
+```
+
 The optional Project API (workspaces, versioning, submission packaging):
 
 ```bash
@@ -232,8 +240,9 @@ docker-compose up -d
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Streamlit UI | http://localhost:8501 | Main web interface |
+| Web app (React) | http://localhost:3000 | Primary UI — responsive, light/dark |
 | Calculation API | http://localhost:8000/docs | Engineering engine — Swagger UI |
+| Streamlit UI | http://localhost:8501 | Legacy UI |
 | Project API | http://localhost:8080 | Project management API |
 
 ### Google Colab — zero install

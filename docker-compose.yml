@@ -66,7 +66,29 @@ services:
     networks:
       - openmep_net
 
-  # Streamlit UI
+  # Web front-end (React SPA served by Nginx) — the primary UI.
+  # Serves the static build and proxies /api to the FastAPI backend.
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - API_UPSTREAM=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - openmep_net
+
+  # Streamlit UI (legacy — kept available during the web-UI migration)
   streamlit:
     build:
       context: .

@@ -105,7 +105,7 @@ def _styles():
 def _header_table(meta: dict, project_info: dict, report_type: str, revision: str) -> Table:
     """Build the letterhead header table."""
     logo_cell = Paragraph("""<font color="#CC0000" size="24"><b>M</b></font>
-        <br/><font color="#FFFFFF" size="6">OpenMEP v0.3.0</font>""",
+        <br/><font color="#FFFFFF" size="6">OpenMEP v0.4.0</font>""",
         ParagraphStyle("Logo", fontName="Helvetica-Bold", fontSize=24,
                        textColor=WHITE_C, alignment=TA_CENTER))
 
@@ -404,7 +404,7 @@ def generate_calculation_pdf(project_info: Dict[str, Any], calc_data: Dict[str, 
     story.append(signoff_tbl)
     story.append(Spacer(1, 3*mm))
     story.append(Paragraph(
-        f"<i>This document has been prepared using OpenMEP v0.3.0 (open-source MEP engineering suite). "
+        f"<i>This document has been prepared using OpenMEP v0.4.0 (open-source MEP engineering suite). "
         f"All calculations must be independently reviewed by a qualified engineer before use in construction. "
         f"© OpenMEP | MIT License | {meta['footer_tag']}</i>",
         st_styles["small"]
