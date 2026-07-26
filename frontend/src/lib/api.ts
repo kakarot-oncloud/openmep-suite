@@ -40,7 +40,31 @@ async function get<T>(path: string): Promise<T> {
   return (await resp.json()) as T;
 }
 
-export const api = { post, get, base: BASE };
+async function del(path: string): Promise<void> {
+  const resp = await fetch(`${BASE}${path}`, { method: "DELETE" });
+  if (!resp.ok) throw new ApiError(`Request failed (${resp.status})`, resp.status);
+}
+
+// POST that returns a binary file (CSV/Excel), triggering a browser download.
+async function download(path: string, body: unknown, filename: string): Promise<void> {
+  const resp = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) throw new ApiError(`Export failed (${resp.status})`, resp.status);
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export const api = { post, get, del, download, base: BASE };
 
 // ── Response shapes (subset of fields the UI uses) ───────────────────────────
 

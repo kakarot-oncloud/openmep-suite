@@ -24,6 +24,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   dedicated pages with take-off/row-table inputs and result tables.
 - Reusable row-table editor for load/circuit/take-off schedules; typed client, loading and
   error states, result cards, compliance badges and per-check pass/fail tables.
+- **Platform tools in the web app:** Batch Cable Schedule (design basis + circuit table →
+  sized schedule with one-click CSV/Excel download) and Projects (persistent SQLite
+  workspaces — create/list/delete, design basis, saved results).
 - Every endpoint verified live (HTTP 200 + populated result).
 - **Deployment**: multi-stage `frontend/Dockerfile` (Vite build → Nginx) that serves the
   static SPA and proxies `/api` to the backend; `web` service added to `docker-compose.yml`
