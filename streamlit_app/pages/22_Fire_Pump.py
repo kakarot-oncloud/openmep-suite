@@ -1,13 +1,22 @@
 """Fire Pump Sizing — OpenMEP"""
 
-import streamlit as st
-import sys
 import os
+import sys
+
+import streamlit as st
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, page_header, result_card, section_title, format_summary,
-    api_post, region_selector,
-    TEAL, TEAL_L
+    DARK_GREY,
+    TEAL_L,
+    WHITE,
+    api_post,
+    apply_theme_css,
+    format_summary,
+    page_header,
+    region_selector,
+    result_card,
+    section_title,
 )
 
 st.set_page_config(page_title="Fire Pump — OpenMEP", page_icon="🚒", layout="wide")
@@ -118,8 +127,8 @@ if st.button("Size Fire Pump Set", use_container_width=True):
         exp1, exp2, exp3 = st.columns(3)
         with exp1:
             try:
-                from report_generator import generate_calculation_pdf as _gp
                 import pandas as _pd
+                from report_generator import generate_calculation_pdf as _gp
                 _m = {"project_name": st.session_state.get("project_name", ""), "region": region_code,
                       "report_type": "fire_pump", "discipline": "fire", "revision": "P01",
                       "date": str(_pd.Timestamp.today().date())}
@@ -133,6 +142,7 @@ if st.button("Size Fire Pump Set", use_container_width=True):
         with exp2:
             try:
                 import io as _io
+
                 import pandas as _pd
                 _buf = _io.BytesIO()
                 _pd.DataFrame([{k: v for k, v in result.items() if isinstance(v, (int, float, str))}]).to_excel(

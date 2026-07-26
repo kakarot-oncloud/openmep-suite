@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings
 from pathlib import Path
+
+from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).parent
 STANDARDS_DATA_DIR = BASE_DIR / "standards_data"
@@ -47,7 +48,7 @@ AUSTRALIA_STATES = {
 
 class Settings(BaseSettings):
     app_name: str = "OpenMEP API"
-    version: str = "0.2.1"
+    version: str = "0.2.0"
     debug: bool = False
     api_prefix: str = "/api"
 

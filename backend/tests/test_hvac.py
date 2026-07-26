@@ -58,9 +58,9 @@ class TestCoolingLoadGCC:
         assert resp.status_code == 200
         d = resp.json()
         assert d["status"] == "success"
-        assert d["total_cooling_load_kw"] > 0
+        assert d["total_cooling_kw"] > 0
         # GCC office: expected 150-450 W/m2 (higher due to 46 deg C solar)
-        w_per_m2 = d["total_cooling_load_kw"] * 1000 / 200
+        w_per_m2 = d["total_cooling_kw"] * 1000 / 200
         assert 100 <= w_per_m2 <= 600, f"GCC office: {w_per_m2:.0f} W/m2 outside 100-600 range"
 
     async def test_gcc_internal_gains_components(self, api_client):
@@ -90,12 +90,12 @@ class TestCoolingLoadGCC:
         assert resp.status_code == 200
         d = resp.json()
         # Sensible internal gains alone must be >= 7.8 kW
-        assert d["total_cooling_load_kw"] >= 7.0, (
-            f"Internal gains should be >= 7 kW, got {d['total_cooling_load_kw']:.2f} kW"
+        assert d["total_cooling_kw"] >= 7.0, (
+            f"Internal gains should be >= 7 kW, got {d['total_cooling_kw']:.2f} kW"
         )
 
     async def test_gcc_cop_affects_electrical_input(self, api_client):
-        """Higher COP must result in lower electrical input power for same cooling load."""
+        """Higher COP must result in lower chiller (electrical) input power for same cooling load."""
         base = {
             "region": "gcc", "zone_type": "office",
             "floor_area_m2": 100, "height_m": 3.0,
@@ -104,10 +104,10 @@ class TestCoolingLoadGCC:
         }
         r_cop2 = (await api_client.post("/api/mechanical/cooling-load", json={**base, "cop": 2.0})).json()
         r_cop4 = (await api_client.post("/api/mechanical/cooling-load", json={**base, "cop": 4.0})).json()
-        if "electrical_input_kw" in r_cop2:
-            assert r_cop4["electrical_input_kw"] < r_cop2["electrical_input_kw"]
-        assert r_cop2["total_cooling_load_kw"] > 0
-        assert r_cop4["total_cooling_load_kw"] > 0
+        # chiller_power_kw = total_cooling_kw / COP, so higher COP -> lower input power
+        assert r_cop4["chiller_power_kw"] < r_cop2["chiller_power_kw"]
+        assert r_cop2["total_cooling_kw"] > 0
+        assert r_cop4["total_cooling_kw"] > 0
 
 
 # ─── Cooling Load — Europe Region ────────────────────────────────────────────
@@ -139,7 +139,7 @@ class TestCoolingLoadEurope:
         assert resp.status_code == 200
         d = resp.json()
         assert d["status"] == "success"
-        assert d["total_cooling_load_kw"] > 0
+        assert d["total_cooling_kw"] > 0
 
     async def test_gcc_load_greater_than_europe_same_geometry(self, api_client):
         """GCC cooling load must exceed Europe for identical geometry (higher outdoor temp)."""
@@ -152,9 +152,9 @@ class TestCoolingLoadEurope:
         }
         r_gcc = (await api_client.post("/api/mechanical/cooling-load", json={**base, "region": "gcc"})).json()
         r_eu  = (await api_client.post("/api/mechanical/cooling-load", json={**base, "region": "europe"})).json()
-        assert r_gcc["total_cooling_load_kw"] > r_eu["total_cooling_load_kw"], (
-            f"GCC ({r_gcc['total_cooling_load_kw']:.1f} kW) must exceed Europe "
-            f"({r_eu['total_cooling_load_kw']:.1f} kW) for same geometry"
+        assert r_gcc["total_cooling_kw"] > r_eu["total_cooling_kw"], (
+            f"GCC ({r_gcc['total_cooling_kw']:.1f} kW) must exceed Europe "
+            f"({r_eu['total_cooling_kw']:.1f} kW) for same geometry"
         )
 
 
@@ -184,7 +184,7 @@ class TestCoolingLoadIndia:
         assert resp.status_code == 200
         d = resp.json()
         assert d["status"] == "success"
-        assert d["total_cooling_load_kw"] > 5.0
+        assert d["total_cooling_kw"] > 5.0
 
     async def test_india_hotel_room_cooling_load(self, api_client):
         resp = await api_client.post("/api/mechanical/cooling-load", json={
@@ -202,9 +202,9 @@ class TestCoolingLoadIndia:
         })
         assert resp.status_code == 200
         d = resp.json()
-        assert d["total_cooling_load_kw"] > 0
+        assert d["total_cooling_kw"] > 0
         # Single hotel room: expect 2-8 kW (1.5-3 TR typical)
-        assert d["total_cooling_load_kw"] < 15
+        assert d["total_cooling_kw"] < 15
 
 
 # ─── Cooling Load — Australia Region ─────────────────────────────────────────
@@ -232,7 +232,7 @@ class TestCoolingLoadAustralia:
         assert resp.status_code == 200
         d = resp.json()
         assert d["status"] == "success"
-        assert d["total_cooling_load_kw"] > 0
+        assert d["total_cooling_kw"] > 0
 
 
 # ─── Cross-region parametrized tests ──────────────────────────────────────────
@@ -262,7 +262,7 @@ class TestCoolingLoadAllRegions:
         assert resp.status_code == 200
         d = resp.json()
         assert d["status"] == "success"
-        assert d["total_cooling_load_kw"] > 0, f"Region {region}: cooling load must be > 0"
+        assert d["total_cooling_kw"] > 0, f"Region {region}: cooling load must be > 0"
 
     @pytest.mark.parametrize("region", ["gcc", "europe", "india", "australia"])
     async def test_larger_area_gives_larger_load(self, region, api_client):
@@ -274,6 +274,6 @@ class TestCoolingLoadAllRegions:
         }
         r_small = (await api_client.post("/api/mechanical/cooling-load", json={**base, "floor_area_m2": 50})).json()
         r_large = (await api_client.post("/api/mechanical/cooling-load", json={**base, "floor_area_m2": 200})).json()
-        assert r_large["total_cooling_load_kw"] > r_small["total_cooling_load_kw"], (
+        assert r_large["total_cooling_kw"] > r_small["total_cooling_kw"], (
             f"Region {region}: larger area must give higher load"
         )

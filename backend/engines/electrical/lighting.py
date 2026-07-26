@@ -5,9 +5,10 @@ Supports GCC (DEWA/DCD standards), Europe (EN 12464), India (SP:72), Australia (
 """
 
 import math
-import numpy as np
 from dataclasses import dataclass, field
 from typing import Optional
+
+import numpy as np
 
 
 @dataclass
@@ -125,7 +126,9 @@ def calculate_lighting(inp: LightingInput) -> LightingResult:
 
     # Room geometry
     area = inp.length_m * inp.width_m
-    hm = inp.height_m - inp.work_plane_height_m  # Mounting height above work plane
+    # Mounting height above the work plane — floored so the room-index division
+    # cannot blow up when the luminaire sits at (or below) the work plane.
+    hm = max(inp.height_m - inp.work_plane_height_m, 0.01)
     res.room_area_m2 = round(area, 2)
 
     # Room Index K (CIE method)
@@ -150,7 +153,7 @@ def calculate_lighting(inp: LightingInput) -> LightingResult:
     res.target_lux_em = target_lux
 
     # Number of luminaires  N = (Em × A) / (Φ × UF × LLF)
-    phi = inp.luminaire_lumens * inp.luminaire_efficiency
+    phi = max(inp.luminaire_lumens * inp.luminaire_efficiency, 1e-6)
     n_exact = (target_lux * area) / (phi * uf * llf)
     n = math.ceil(n_exact)
     if n < 1:

@@ -6,17 +6,21 @@ Regional letterhead and formatting per project plan Section 4.
 
 import io
 from datetime import date
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 try:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.colors import HexColor
+    from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import mm
-    from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
     from reportlab.platypus import (
-        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
         HRFlowable,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
     )
     REPORTLAB_OK = True
 except ImportError:
@@ -101,7 +105,7 @@ def _styles():
 def _header_table(meta: dict, project_info: dict, report_type: str, revision: str) -> Table:
     """Build the letterhead header table."""
     logo_cell = Paragraph("""<font color="#CC0000" size="24"><b>M</b></font>
-        <br/><font color="#FFFFFF" size="6">OpenMEP v0.1.0</font>""",
+        <br/><font color="#FFFFFF" size="6">OpenMEP v0.2.0</font>""",
         ParagraphStyle("Logo", fontName="Helvetica-Bold", fontSize=24,
                        textColor=WHITE_C, alignment=TA_CENTER))
 
@@ -400,7 +404,7 @@ def generate_calculation_pdf(project_info: Dict[str, Any], calc_data: Dict[str, 
     story.append(signoff_tbl)
     story.append(Spacer(1, 3*mm))
     story.append(Paragraph(
-        f"<i>This document has been prepared using OpenMEP v0.1.0 (open-source MEP engineering suite). "
+        f"<i>This document has been prepared using OpenMEP v0.2.0 (open-source MEP engineering suite). "
         f"All calculations must be independently reviewed by a qualified engineer before use in construction. "
         f"© OpenMEP | MIT License | {meta['footer_tag']}</i>",
         st_styles["small"]

@@ -17,15 +17,19 @@ Run: python -m pytest backend/tests/test_plumbing.py -v
 """
 
 import math
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 import pytest
+
 from backend.engines.plumbing.pipe_sizing import (
-    PlumbingInput, PipeSizingResult, calculate_pipe_sizing,
-    du_to_flow_l_s, hazen_williams_pressure_drop,
-    HW_C, DN_TO_ID_MM, PLUMBING_STANDARDS,
+    HW_C,
+    PlumbingInput,
+    calculate_pipe_sizing,
+    du_to_flow_l_s,
+    hazen_williams_pressure_drop,
 )
 
 

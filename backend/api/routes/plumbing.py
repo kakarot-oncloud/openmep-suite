@@ -1,10 +1,13 @@
 """FastAPI Plumbing/Drainage Calculation Routes."""
 
-from fastapi import APIRouter, HTTPException
+import math
 from typing import Any
 
-from backend.models.plumbing import PipeSizingRequest
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
 from backend.engines.plumbing.pipe_sizing import PlumbingInput, calculate_pipe_sizing
+from backend.models.plumbing import PipeSizingRequest
 
 router = APIRouter(prefix="/plumbing", tags=["Plumbing & Drainage"])
 
@@ -38,8 +41,6 @@ async def pipe_sizing(req: PipeSizingRequest) -> Any:
 
 # ─── Additional Plumbing Endpoints ────────────────────────────────────────────
 
-from pydantic import BaseModel
-import math
 
 class DrainageSizingRequest(BaseModel):
     region: str = "gcc"
@@ -72,7 +73,10 @@ async def drainage_sizing(req: DrainageSizingRequest) -> Any:
         # Manning equation for pipe full bore at gradient
         # Q = (1/n) * A * R^(2/3) * S^(1/2); target: find DN
         n = 0.011  # uPVC/PVC smooth pipe
-        s = req.gradient_percent / 100.0
+        # Clamp gradient to a positive minimum: 0 gives no capacity, negative -> complex sqrt.
+        min_gradient_percent = 0.1
+        effective_gradient_percent = max(req.gradient_percent, min_gradient_percent)
+        s = effective_gradient_percent / 100.0
         # Try standard DN sizes
         dns = [50, 75, 100, 150, 200, 250, 300]
         selected_dn = 100
@@ -208,7 +212,8 @@ async def hot_water_system(req: HotWaterSystemRequest) -> Any:
         energy_kwh = (daily_demand_l * 4.186 * delta_t) / 3600.0
         energy_with_standby = energy_kwh * (1 + req.standby_loss_pct / 100.0)
         storage_l = daily_demand_l * 0.6  # store 60% of daily demand
-        heater_kw = energy_kwh / req.recovery_time_hr
+        recovery_time_hr = max(req.recovery_time_hr, 1e-6)  # avoid divide-by-zero
+        heater_kw = energy_kwh / recovery_time_hr
 
         # Std tank sizes
         std_tanks = [100, 150, 200, 300, 400, 500, 750, 1000, 1500, 2000, 3000]

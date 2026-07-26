@@ -1,15 +1,24 @@
 """PDF Report Generator — OpenMEP"""
 
-import streamlit as st
-import sys
 import os
+import sys
 from datetime import date
+
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, page_header, result_card, section_title, compliance_badge, format_summary,
-    api_post, region_selector,
-    TEAL, TEAL_L
+    DARK_GREY,
+    TEAL_L,
+    WHITE,
+    api_post,
+    apply_theme_css,
+    compliance_badge,
+    format_summary,
+    page_header,
+    region_selector,
+    result_card,
+    section_title,
 )
 
 st.set_page_config(page_title="PDF Reports — OpenMEP", page_icon="📄", layout="wide")
@@ -85,7 +94,7 @@ REPORT_CONFIGS = {
     },
     "sprinkler": {
         "label": "Sprinkler Design (Fire)",
-        "endpoint": "/api/fire/sprinkler-design",
+        "endpoint": "/api/fire/sprinkler",
         "discipline": "fire",
         "inputs": ["floor_area_m2"],
     },
@@ -145,27 +154,32 @@ if st.button("Generate & Download PDF Report", use_container_width=True):
         calc_payload = {
             "region": region_code, "sub_region": sub_code,
             "load_kw": load_kw, "power_factor": pf,
-            "phases": "3", "voltage_v": voltage_v,
+            "phases": 3, "voltage_v": voltage_v,
             "cable_type": "XLPE_CU", "installation_method": "C",
             "cable_length_m": cable_length, "circuit_type": "power",
             "ambient_temp_c": ambient_temp,
         }
     elif report_type == "voltage_drop":
+        # Derive design current from load (3-phase: I = P / (√3 · V · pf))
+        design_current_a = (load_kw * 1000.0) / (1.732 * voltage_v * pf) if voltage_v and pf else load_kw
         calc_payload = {
             "region": region_code, "sub_region": sub_code,
-            "load_kw": load_kw, "power_factor": pf,
-            "voltage_v": voltage_v, "cable_length_m": cable_length,
-            "cable_size_mm2": 35.0, "cable_type": "XLPE_CU",
-            "phases": "3", "circuit_type": "power",
+            "cable_type": "XLPE_CU",
+            "conductor_size_mm2": 35.0,
+            "cable_length_m": cable_length,
+            "design_current_a": round(design_current_a, 2),
+            "phases": 3, "circuit_type": "power",
         }
     elif report_type == "maximum_demand":
         calc_payload = {
-            "region": region_code, "sub_region": sub_code,
+            "region": region_code,
+            "supply_voltage_lv": voltage_v,
+            "diversity_factor": 1.0,
+            "future_expansion_pct": 20.0,
             "loads": [
-                {"load_name": "HVAC", "kva": load_kw / pf, "power_factor": pf, "demand_factor": 0.8, "quantity": 1},
-                {"load_name": "Lighting", "kva": load_kw * 0.2 / pf, "power_factor": 0.95, "demand_factor": 0.9, "quantity": 1},
+                {"description": "HVAC", "quantity": 1, "unit_kw": load_kw, "power_factor": pf, "demand_factor": 0.8, "load_type": "power", "phases": 3},
+                {"description": "Lighting", "quantity": 1, "unit_kw": load_kw * 0.2, "power_factor": 0.95, "demand_factor": 0.9, "load_type": "lighting", "phases": 3},
             ],
-            "voltage_v": voltage_v, "phases": "3",
         }
     elif report_type == "cooling_load":
         calc_payload = {
@@ -194,11 +208,14 @@ if st.button("Generate & Download PDF Report", use_container_width=True):
         }
     elif report_type == "ventilation":
         calc_payload = {
-            "region": region_code, "sub_region": sub_code,
+            "region": region_code,
             "zone_name": "Typical Zone", "zone_type": "office",
             "floor_area_m2": floor_area_m2, "height_m": 3.0,
-            "occupancy": num_occupants, "fresh_air_l_s_person": 10.0,
-            "min_ach": 6.0, "supply_temp_offset_k": 8.0,
+            "occupancy": num_occupants,
+            "fresh_air_method": "occupancy", "fresh_air_l_s_person": 10.0,
+            "fresh_air_ach": 6.0,
+            "supply_air_temp_c": 18.0, "room_temp_c": 22.0,
+            "cooling_load_kw": 10.0,
         }
     elif report_type == "pipe_sizing":
         calc_payload = {
@@ -217,10 +234,15 @@ if st.button("Generate & Download PDF Report", use_container_width=True):
         }
     elif report_type == "sprinkler":
         calc_payload = {
-            "region": region_code, "sub_region": sub_code,
-            "hazard_class": "ordinary_group_1", "coverage_area_m2": floor_area_m2,
-            "k_factor": 80.0, "design_density_mm_min": 5.0,
-            "design_area_m2": 72.0, "safety_factor": 1.05,
+            "region": region_code,
+            "occupancy_hazard": "OH1",
+            "area_protected_m2": floor_area_m2,
+            "ceiling_height_m": 4.0,
+            "sprinkler_coverage_m2": 9.0,
+            "sprinkler_k_factor": 80.0,
+            "design_area_m2": 72.0,
+            "design_density_mm_min": 5.0,
+            "hose_allowance_l_min": 500.0,
         }
     elif report_type == "fire_pump":
         calc_payload = {
@@ -240,7 +262,7 @@ if st.button("Generate & Download PDF Report", use_container_width=True):
         calc_payload = {
             "region": region_code, "sub_region": sub_code,
             "load_kw": load_kw, "power_factor": pf,
-            "phases": "3", "voltage_v": voltage_v,
+            "phases": 3, "voltage_v": voltage_v,
             "cable_type": "XLPE_CU", "installation_method": "C",
             "cable_length_m": cable_length, "circuit_type": "power",
             "ambient_temp_c": ambient_temp,
@@ -333,13 +355,18 @@ if st.button("Generate & Download PDF Report", use_container_width=True):
 
         if api_report:
             section_title("Report Index")
+            report = api_report.get("report", {})
+            rpt_meta = report.get("metadata", {})
+            rpt_summary = report.get("summary", {})
+            rpt_region = report.get("region_info", {})
             st.markdown(f"""
             <div style="background:{DARK_GREY}; padding:1rem; border-radius:6px; color:{WHITE}; font-size:0.9rem;">
-                <b>Report Reference:</b> {api_report.get('report_reference', '—')}<br>
+                <b>Report Title:</b> {rpt_meta.get('report_title', '—')}<br>
                 <b>Report Type:</b> {report_type}<br>
-                <b>Calculations:</b> {api_report.get('total_calculations', 0)} total | {api_report.get('calculations_passed', 0)} passed<br>
-                <b>Primary Standard:</b> {api_report.get('primary_standard', '—')}<br>
-                <b>Prepared By:</b> {api_report.get('metadata', {}).get('prepared_by', '—')}<br>
-                <b>Date:</b> {api_report.get('metadata', {}).get('date', '—')}
+                <b>Project Number:</b> {rpt_meta.get('project_number', '—')} | Rev {rpt_meta.get('revision', '—')}<br>
+                <b>Calculations:</b> {rpt_summary.get('total_calculations', 0)} total | {rpt_summary.get('calculations_passed', 0)} passed<br>
+                <b>Primary Standard:</b> {rpt_region.get('primary_standard', '—')}<br>
+                <b>Prepared By:</b> {rpt_meta.get('prepared_by', '—')}<br>
+                <b>Date:</b> {rpt_meta.get('date', '—')}
             </div>
             """, unsafe_allow_html=True)

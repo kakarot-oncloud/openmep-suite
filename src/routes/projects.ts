@@ -10,13 +10,13 @@ import {
   restoreProject,
   isValidProjectId,
   getProjectsDir,
-} from "../lib/project-store";
-import { runAllCalcs } from "../lib/calc-engine";
+} from "../lib/project-store.js";
+import { runAllCalcs } from "../lib/calc-engine.js";
 import {
   listVersions,
   getVersion,
   compareVersions,
-} from "../lib/version-store";
+} from "../lib/version-store.js";
 import {
   getBranding,
   saveBranding,
@@ -25,7 +25,8 @@ import {
   createTemplate,
   updateTemplate,
   deleteTemplate,
-} from "../lib/branding-store";
+} from "../lib/branding-store.js";
+import { asyncHandler } from "../lib/async-handler.js";
 
 const router: IRouter = Router();
 
@@ -58,7 +59,7 @@ const createProjectSchema = z.object({
   totalAreaM2: z.number().positive().optional(),
   occupancy: z.number().int().nonnegative().optional(),
   designConditions: designConditionsSchema.optional(),
-  spaces: z.array(spaceSchema).optional(),
+  spaces: z.array(spaceSchema).max(10000).optional(),
   customFields: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -73,12 +74,12 @@ function validateId(id: string | undefined): string | null {
   return id;
 }
 
-router.get("/projects", async (_req, res) => {
+router.get("/projects", asyncHandler(async (_req, res) => {
   const projects = await listProjects();
   res.json(projects);
-});
+}));
 
-router.post("/projects", async (req, res) => {
+router.post("/projects", asyncHandler(async (req, res) => {
   const result = createProjectSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: "validation_error", message: formatError(result.error) });
@@ -86,9 +87,9 @@ router.post("/projects", async (req, res) => {
   }
   const project = await createProject(result.data);
   res.status(201).json(project);
-});
+}));
 
-router.get("/projects/:id", async (req, res) => {
+router.get("/projects/:id", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -100,9 +101,9 @@ router.get("/projects/:id", async (req, res) => {
     return;
   }
   res.json(project);
-});
+}));
 
-router.put("/projects/:id", async (req, res) => {
+router.put("/projects/:id", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -119,9 +120,9 @@ router.put("/projects/:id", async (req, res) => {
     return;
   }
   res.json(project);
-});
+}));
 
-router.delete("/projects/:id", async (req, res) => {
+router.delete("/projects/:id", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -133,9 +134,9 @@ router.delete("/projects/:id", async (req, res) => {
     return;
   }
   res.status(204).send();
-});
+}));
 
-router.post("/projects/:id/refresh", async (req, res) => {
+router.post("/projects/:id/refresh", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -148,9 +149,9 @@ router.post("/projects/:id/refresh", async (req, res) => {
   }
   const calcResults = runAllCalcs(project);
   res.json(calcResults);
-});
+}));
 
-router.get("/projects/:id/versions", async (req, res) => {
+router.get("/projects/:id/versions", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -163,9 +164,9 @@ router.get("/projects/:id/versions", async (req, res) => {
   }
   const versions = await listVersions(id, getProjectsDir());
   res.json({ projectId: id, projectName: project.name, versions });
-});
+}));
 
-router.get("/projects/:id/versions/:version", async (req, res) => {
+router.get("/projects/:id/versions/:version", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -182,9 +183,9 @@ router.get("/projects/:id/versions/:version", async (req, res) => {
     return;
   }
   res.json(versionData);
-});
+}));
 
-router.get("/projects/:id/compare", async (req, res) => {
+router.get("/projects/:id/compare", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -211,9 +212,9 @@ router.get("/projects/:id/compare", async (req, res) => {
     return;
   }
   res.json(diff);
-});
+}));
 
-router.post("/projects/:id/restore/:version", async (req, res) => {
+router.post("/projects/:id/restore/:version", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) {
     res.status(400).json({ error: "invalid_id", message: "Project ID must be a valid UUID" });
@@ -242,7 +243,7 @@ router.post("/projects/:id/restore/:version", async (req, res) => {
   const newVersions = await listVersions(id, getProjectsDir());
   const newVersion = newVersions[newVersions.length - 1]?.version;
   res.json({ restored: true, fromVersion: versionNum, newVersion, project: restoredProject });
-});
+}));
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024 } });
 
@@ -261,7 +262,7 @@ const brandingBodySchema = z.object({
   primaryColor: z.string().optional(),
 });
 
-router.get("/projects/:id/branding", async (req, res) => {
+router.get("/projects/:id/branding", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const project = await getProject(id);
@@ -269,9 +270,9 @@ router.get("/projects/:id/branding", async (req, res) => {
   const branding = await getBranding(id);
   const sanitised = { ...branding, logoBase64: branding.logoBase64 ? "[set]" : undefined, letterheadBase64: branding.letterheadBase64 ? "[set]" : undefined, stampBase64: branding.stampBase64 ? "[set]" : undefined };
   res.json(sanitised);
-});
+}));
 
-router.put("/projects/:id/branding", async (req, res) => {
+router.put("/projects/:id/branding", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const project = await getProject(id);
@@ -289,9 +290,9 @@ router.put("/projects/:id/branding", async (req, res) => {
     const msg = e instanceof Error ? e.message : "Unknown error";
     res.status(400).json({ error: "invalid_input", message: msg });
   }
-});
+}));
 
-router.post("/projects/:id/branding/upload", upload.single("file"), async (req, res) => {
+router.post("/projects/:id/branding/upload", upload.single("file"), asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const project = await getProject(id);
@@ -318,9 +319,9 @@ router.post("/projects/:id/branding/upload", upload.single("file"), async (req, 
   const branding = await saveBranding(id, { [field]: base64 });
   const sanitised = { ...branding, logoBase64: branding.logoBase64 ? "[set]" : undefined, letterheadBase64: branding.letterheadBase64 ? "[set]" : undefined, stampBase64: branding.stampBase64 ? "[set]" : undefined };
   res.json({ uploaded: field, branding: sanitised });
-});
+}));
 
-router.delete("/projects/:id/branding/:field", async (req, res) => {
+router.delete("/projects/:id/branding/:field", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const field = req.params["field"] as unknown;
@@ -332,24 +333,24 @@ router.delete("/projects/:id/branding/:field", async (req, res) => {
   if (!project) { res.status(404).json({ error: "not_found" }); return; }
   const branding = await deleteBrandingAsset(id, field);
   res.json(branding);
-});
+}));
 
-router.get("/projects/:id/templates", async (req, res) => {
+router.get("/projects/:id/templates", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const project = await getProject(id);
   if (!project) { res.status(404).json({ error: "not_found" }); return; }
   const templates = await listTemplates(id);
   res.json(templates);
-});
+}));
 
 const templateBodySchema = z.object({
   name: z.string().min(1),
-  includedModules: z.array(z.string()).optional(),
+  includedModules: z.array(z.string()).max(100).optional(),
   coverIntro: z.string().optional(),
 });
 
-router.post("/projects/:id/templates", async (req, res) => {
+router.post("/projects/:id/templates", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const project = await getProject(id);
@@ -361,9 +362,9 @@ router.post("/projects/:id/templates", async (req, res) => {
   }
   const template = await createTemplate(id, parsed.data);
   res.status(201).json(template);
-});
+}));
 
-router.put("/projects/:id/templates/:tid", async (req, res) => {
+router.put("/projects/:id/templates/:tid", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const tid = req.params["tid"];
@@ -378,9 +379,9 @@ router.put("/projects/:id/templates/:tid", async (req, res) => {
   const updated = await updateTemplate(id, tid, parsed.data);
   if (!updated) { res.status(404).json({ error: "not_found", message: "Template not found" }); return; }
   res.json(updated);
-});
+}));
 
-router.delete("/projects/:id/templates/:tid", async (req, res) => {
+router.delete("/projects/:id/templates/:tid", asyncHandler(async (req, res) => {
   const id = validateId(req.params["id"]);
   if (!id) { res.status(400).json({ error: "invalid_id" }); return; }
   const tid = req.params["tid"];
@@ -390,7 +391,6 @@ router.delete("/projects/:id/templates/:tid", async (req, res) => {
   const deleted = await deleteTemplate(id, tid);
   if (!deleted) { res.status(404).json({ error: "not_found", message: "Template not found" }); return; }
   res.status(204).send();
-});
+}));
 
 export default router;
-

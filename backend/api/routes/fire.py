@@ -1,10 +1,13 @@
 """FastAPI Fire Protection Calculation Routes."""
 
-from fastapi import APIRouter, HTTPException
+import math
 from typing import Any
 
-from backend.models.fire import SprinklerRequest
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
 from backend.engines.fire.sprinkler_calc import SprinklerInput, calculate_sprinkler
+from backend.models.fire import SprinklerRequest
 
 router = APIRouter(prefix="/fire", tags=["Fire Protection"])
 
@@ -24,6 +27,7 @@ async def sprinkler_calc(req: SprinklerRequest) -> Any:
             sprinkler_coverage_m2=req.sprinkler_coverage_m2,
             sprinkler_k_factor=req.sprinkler_k_factor,
             design_area_m2=req.design_area_m2 or 0,
+            design_density_mm_min=req.design_density_mm_min or 0,
             hose_allowance_l_min=req.hose_allowance_l_min,
         )
         result = calculate_sprinkler(inp)
@@ -49,8 +53,6 @@ async def sprinkler_calc(req: SprinklerRequest) -> Any:
 
 # ─── Additional Fire Protection Endpoints ─────────────────────────────────────
 
-from pydantic import BaseModel
-import math
 
 class FirePumpRequest(BaseModel):
     region: str = "gcc"

@@ -1,17 +1,15 @@
 """Submittal Tracker — OpenMEP"""
 
-import streamlit as st
-import sys
-import os
 import io
-import pandas as pd
+import os
+import sys
 from datetime import date
 
+import pandas as pd
+import streamlit as st
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, LIGHT_GREY,
-    page_header, section_title
-)
+from utils import LIGHT_GREY, RED, apply_theme_css, page_header, section_title
 
 st.set_page_config(page_title="Submittal Tracker — OpenMEP", page_icon="📎", layout="wide")
 apply_theme_css()

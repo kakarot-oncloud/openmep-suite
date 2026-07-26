@@ -2,26 +2,35 @@
 FastAPI Electrical Engineering Calculation Routes
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
 from typing import Any, List, Optional
 
-from backend.models.electrical import (
-    CableSizingRequest, VoltageDropRequest, MaxDemandRequest, ShortCircuitRequest, LightingRequest,
-)
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field
+
 from backend.engines.electrical.cable_sizing import CableSizingInput, calculate_cable_sizing
-from backend.engines.electrical.voltage_drop import VoltageDrop, calculate_voltage_drop
 from backend.engines.electrical.demand_load import LoadItem, calculate_maximum_demand
-from backend.engines.electrical.short_circuit import ShortCircuitInput, calculate_short_circuit
-from backend.engines.electrical.lighting import LightingInput, calculate_lighting
-from backend.engines.electrical.pf_correction import PFCorrectionInput, calculate_pf_correction
 from backend.engines.electrical.generator_sizing import (
-    GeneratorSizingInput, GeneratorLoad, calculate_generator_sizing,
+    GeneratorLoad,
+    GeneratorSizingInput,
+    calculate_generator_sizing,
 )
+from backend.engines.electrical.lighting import LightingInput, calculate_lighting
 from backend.engines.electrical.panel_schedule import (
-    PanelScheduleInput, CircuitItem, calculate_panel_schedule,
+    CircuitItem,
+    PanelScheduleInput,
+    calculate_panel_schedule,
 )
-from backend.engines.electrical.ups_sizing import UPSSizingInput, UPSLoad, calculate_ups_sizing
+from backend.engines.electrical.pf_correction import PFCorrectionInput, calculate_pf_correction
+from backend.engines.electrical.short_circuit import ShortCircuitInput, calculate_short_circuit
+from backend.engines.electrical.ups_sizing import UPSLoad, UPSSizingInput, calculate_ups_sizing
+from backend.engines.electrical.voltage_drop import VoltageDrop, calculate_voltage_drop
+from backend.models.electrical import (
+    CableSizingRequest,
+    LightingRequest,
+    MaxDemandRequest,
+    ShortCircuitRequest,
+    VoltageDropRequest,
+)
 
 router = APIRouter(prefix="/electrical", tags=["Electrical Engineering"])
 

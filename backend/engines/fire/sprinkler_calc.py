@@ -15,8 +15,8 @@ class SprinklerInput:
     ceiling_height_m: float = 4.0
     sprinkler_coverage_m2: float = 9.0  # Max area per sprinkler head
     sprinkler_k_factor: float = 80.0    # K-factor (L/min/bar^0.5) — K80 standard
-    design_area_m2: float = 216.0       # Hydraulically remote design area
-    design_density_mm_min: float = 5.0  # Discharge density (mm/min = L/min/m²)
+    design_area_m2: float = 0.0         # Hydraulically remote design area (0 = use hazard table)
+    design_density_mm_min: float = 0.0  # Discharge density override (0 = use hazard table)
     hose_allowance_l_min: float = 500.0 # Hose stream allowance
 
 
@@ -61,8 +61,9 @@ def calculate_sprinkler(inp: SprinklerInput) -> SprinklerResult:
     )
 
     params = HAZARD_PARAMS.get(inp.occupancy_hazard.upper(), HAZARD_PARAMS["OH1"])
-    design_density = params["density_mm_min"]  # L/min/m²
-    design_area = inp.design_area_m2 or params["area_m2"]
+    # Use caller-supplied density override only if positive, else the hazard-table density
+    design_density = inp.design_density_mm_min if inp.design_density_mm_min and inp.design_density_mm_min > 0 else params["density_mm_min"]  # L/min/m²
+    design_area = inp.design_area_m2 if inp.design_area_m2 and inp.design_area_m2 > 0 else params["area_m2"]
     duration = params["duration_min"]
     res.supply_duration_min = duration
 
@@ -93,11 +94,11 @@ def calculate_sprinkler(inp: SprinklerInput) -> SprinklerResult:
     pump_head_m = round(pump_head_m, 1)
     res.pump_head_m = pump_head_m
 
-    Q_pump_l_s = Q_total / 60
+    Q_m3s = Q_total / 60000  # L/min -> m³/s
     rho = 1000  # water kg/m³
     g = 9.81
     efficiency = 0.65
-    pump_kw = (Q_pump_l_s * rho * g * pump_head_m) / (1000 * efficiency)
+    pump_kw = (rho * g * Q_m3s * pump_head_m) / (1000 * efficiency)
 
     res.pump_flow_l_min = round(Q_total, 1)
     res.pump_power_kw = round(pump_kw, 2)

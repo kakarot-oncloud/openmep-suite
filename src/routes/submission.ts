@@ -7,6 +7,9 @@ import {
 import { buildSubmissionPackage } from "../engines/submission-service.js";
 import { getBranding } from "../lib/branding-store.js";
 import { isValidProjectId } from "../lib/project-store.js";
+import { asyncHandler, sanitizeHeaderValue } from "../lib/async-handler.js";
+
+const MAX_MODULE_RESULTS = 100;
 
 const ModuleTypeSchema = z.enum([
   "electrical",
@@ -25,7 +28,7 @@ const ModuleResultSchema = z.object({
 });
 
 const ComplianceCheckRequest = z.object({
-  moduleResults: z.array(ModuleResultSchema),
+  moduleResults: z.array(ModuleResultSchema).max(MAX_MODULE_RESULTS),
 });
 
 const ComplianceCheckResponse = z.object({
@@ -50,8 +53,8 @@ const ProjectDetailsSchema = z.object({
 
 const SubmissionPackageRequest = z.object({
   projectDetails: ProjectDetailsSchema,
-  moduleResults: z.array(ModuleResultSchema),
-  includedModules: z.array(z.string()).optional(),
+  moduleResults: z.array(ModuleResultSchema).max(MAX_MODULE_RESULTS),
+  includedModules: z.array(z.string()).max(MAX_MODULE_RESULTS).optional(),
   projectId: z.string().optional(),
   templateId: z.string().optional(),
 });
@@ -60,7 +63,7 @@ const router: IRouter = Router();
 
 router.post(
   "/submission/compliance-check",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const parsed = ComplianceCheckRequest.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Invalid request", details: parsed.error.issues });
@@ -80,12 +83,12 @@ router.post(
     });
 
     res.json(response);
-  },
+  }),
 );
 
 router.post(
   "/submission/package",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const parsed = SubmissionPackageRequest.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Invalid request", details: parsed.error.issues });
@@ -119,19 +122,29 @@ router.post(
       branding,
     });
 
-    const projectNum = parsed.data.projectDetails.projectNumber.replace(
-      /[^a-zA-Z0-9-_]/g,
-      "_",
-    );
-    const filename = `submission_${projectNum}_rev${parsed.data.projectDetails.revisionNumber}.zip`;
+    const projectNum = sanitizeHeaderValue(
+      parsed.data.projectDetails.projectNumber,
+    ).replace(/[^a-zA-Z0-9-_]/g, "_");
+    const revision = sanitizeHeaderValue(
+      parsed.data.projectDetails.revisionNumber,
+    ).replace(/[^a-zA-Z0-9-_]/g, "_");
+    const filename = `submission_${projectNum}_rev${revision}.zip`;
 
     res.setHeader("Content-Type", "application/zip");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.setHeader("X-Compliance-Has-Errors", String(result.hasErrors));
     res.setHeader("X-Compliance-Violation-Count", String(result.violations.length));
 
+    result.zipStream.on("error", (err) => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: "stream_error", message: "Failed to stream submission package" });
+      } else {
+        res.destroy(err);
+      }
+    });
+
     result.zipStream.pipe(res);
-  },
+  }),
 );
 
 export default router;

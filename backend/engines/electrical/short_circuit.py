@@ -80,20 +80,26 @@ def calculate_short_circuit(inp: ShortCircuitInput) -> ShortCircuitResult:
     # 1-phase fault at LV terminals (approx: 0.87 × 3-phase for TN systems)
     res.isc_tx_1ph_ka = round(isc_3ph_tx * 0.87 / 1000, 2)
 
-    # Cable impedance (phase + neutral/CPC loop, worst case double length)
     rho = inp.cable_resistivity  # Ω·mm²/m at operating temp
     r_cable_per_m = rho / inp.cable_size_mm2
-    r_total = r_cable_per_m * inp.cable_length_m * 2  # line + return
+    r_phase = r_cable_per_m * inp.cable_length_m  # single conductor length
 
-    # 3-phase fault at end of cable
-    z_end = math.sqrt(z_total_source**2 + r_total**2)
-    isc_3ph_end = v_base / (math.sqrt(3) * z_end)
+    # 3-phase symmetrical fault at end of cable — balanced fault sees only the
+    # per-phase impedance (single conductor length), not the line+return loop.
+    z_end_3ph = math.sqrt(z_total_source**2 + r_phase**2)
+    isc_3ph_end = v_base / (math.sqrt(3) * z_end_3ph)
     res.isc_end_3ph_ka = round(isc_3ph_end / 1000, 2)
-    res.isc_end_1ph_ka = round(isc_3ph_end * 0.87 / 1000, 2)
+
+    # Single-phase (L-N) fault at end of cable — the loop is line + neutral,
+    # i.e. twice the conductor length, driven by the phase voltage V/√3.
+    r_loop_ln = 2 * r_phase
+    z_end_1ph = math.sqrt(z_total_source**2 + r_loop_ln**2)
+    isc_1ph_end = (v_base / math.sqrt(3)) / z_end_1ph
+    res.isc_end_1ph_ka = round(isc_1ph_end / 1000, 2)
 
     # Minimum earth fault current (earth loop: line + CPC at higher resistance)
-    # Earth CPC typically smaller — assume 50% cross section (1.5× resistance)
-    r_cpc_per_m = rho * 1.5 / inp.cable_size_mm2
+    # CPC typically ~50% of phase cross-section → ~2× resistance per metre.
+    r_cpc_per_m = rho * 2.0 / inp.cable_size_mm2
     r_loop = r_cable_per_m * inp.cable_length_m + r_cpc_per_m * inp.cable_length_m
     z_fault_loop = math.sqrt(z_total_source**2 + r_loop**2)
     ief_min = (v_base / math.sqrt(3)) / z_fault_loop

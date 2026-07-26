@@ -5,6 +5,7 @@ Supports dedicated voltage drop calculation with upsize recommendation.
 
 from dataclasses import dataclass
 from typing import Optional
+
 from ..adapters_factory import get_electrical_adapter
 
 

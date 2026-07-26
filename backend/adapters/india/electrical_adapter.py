@@ -6,6 +6,7 @@ Cable: 3.5 core (neutral = 50% of phase); FRLS mandatory per NBC 2016 Part 4
 """
 
 import numpy as np
+
 from ..base_adapter import BaseElectricalAdapter
 
 SIZES = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 630]

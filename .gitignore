@@ -55,7 +55,7 @@ node_modules/
 replit.md
 artifacts/
 attached_assets/
-lib/
+/lib/
 frontend/
 .pythonlibs/
 

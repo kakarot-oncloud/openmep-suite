@@ -19,14 +19,17 @@ Reference values traceable to published standards:
 Run: python -m pytest backend/tests/test_fire.py -v
 """
 
-import math
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 import pytest
+
 from backend.engines.fire.sprinkler_calc import (
-    SprinklerInput, SprinklerResult, calculate_sprinkler, HAZARD_PARAMS, SPRINKLER_STANDARDS
+    HAZARD_PARAMS,
+    SprinklerInput,
+    calculate_sprinkler,
 )
 
 

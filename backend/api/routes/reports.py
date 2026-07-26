@@ -7,12 +7,13 @@ suitable for rendering as PDF, Excel, or HTML documents.
 For PDF export, use /api/reports/pdf-data to get formatted data.
 """
 
+from datetime import datetime
+from typing import Any, List, Optional
+
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from pydantic import BaseModel
-from typing import Any, List, Optional
-from datetime import datetime
 
 router = APIRouter(prefix="/reports", tags=["Engineering Reports"])
 
@@ -134,8 +135,8 @@ async def calculation_report(request: Request, req: CalculationReportRequest) ->
                 },
                 "software": {
                     "name": "OpenMEP",
-                    "version": "0.1.0",
-                    "url": "https://github.com/openmep/openmep",
+                    "version": "0.2.0",
+                    "url": "https://github.com/kakarot-oncloud/openmep-suite",
                     "license": "MIT",
                 },
                 "disclaimer": DISCLAIMER,

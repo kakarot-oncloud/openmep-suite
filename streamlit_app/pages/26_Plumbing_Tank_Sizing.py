@@ -1,18 +1,24 @@
 """Plumbing Tank Sizing — OpenMEP"""
 
-import streamlit as st
-import sys
-import os
 import io
-import pandas as pd
+import os
+import sys
 from datetime import date
+
+import pandas as pd
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, LIGHT_GREY,
-    page_header, section_title, region_selector, api_post,
+    LIGHT_GREY,
+    TEAL_L,
+    WHITE,
+    api_post,
+    apply_theme_css,
     metric_card_html,
-    TEAL, TEAL_L
+    page_header,
+    region_selector,
+    section_title,
 )
 
 st.set_page_config(page_title="Plumbing Tank Sizing — OpenMEP", page_icon="🏊", layout="wide")

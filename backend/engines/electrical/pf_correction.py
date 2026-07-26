@@ -10,8 +10,8 @@ Supports all 4 regions with regional utility tariff penalty thresholds.
 import math
 from dataclasses import dataclass
 from typing import Optional
-from backend.engines.adapters_factory import get_electrical_adapter
 
+from backend.engines.adapters_factory import get_electrical_adapter
 
 # Regional PF penalty thresholds (below which utility charges penalty)
 REGIONAL_PF_THRESHOLDS = {
@@ -130,15 +130,19 @@ def calculate_pf_correction(inp: PFCorrectionInput) -> PFCorrectionResult:
     result.existing_pf = inp.existing_pf
     result.target_pf = inp.target_pf
 
+    # Clamp power factors into the physical (0, 1] range so arccos never
+    # receives an out-of-domain argument on direct (non-API) engine calls.
+    existing_pf = min(max(inp.existing_pf, 0.01), 1.0)
+    target_pf = min(max(inp.target_pf, 0.01), 1.0)
+
     # Existing reactive / apparent power
-    phi1 = math.acos(inp.existing_pf)
-    phi2 = math.acos(inp.target_pf)
+    phi1 = math.acos(existing_pf)
+    phi2 = math.acos(target_pf)
     tan_phi1 = math.tan(phi1)
     tan_phi2 = math.tan(phi2)
 
-    existing_q = inp.active_power_kw * tan_phi1          # kVAr
-    existing_s = inp.active_power_kw / inp.existing_pf   # kVA
-    inp.active_power_kw / inp.target_pf       # kVA
+    existing_q = inp.active_power_kw * tan_phi1        # kVAr
+    existing_s = inp.active_power_kw / existing_pf     # kVA
 
     result.existing_reactive_kvar = round(existing_q, 2)
     result.existing_apparent_kva = round(existing_s, 2)

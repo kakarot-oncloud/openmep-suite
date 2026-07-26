@@ -9,9 +9,10 @@ Supports regional measurement schemas:
   Australia — AIQS / AISC (AUD)
 """
 
+from typing import Any, List, Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, List, Optional
 
 router = APIRouter(prefix="/boq", tags=["Bill of Quantities"])
 
@@ -137,7 +138,11 @@ REGIONAL_MULTIPLIERS = {
 
 
 def _cable_rate(size_mm2: float, phases: int) -> float:
-    size_key = str(int(size_mm2)) if size_mm2 >= 1 else "1.5"
+    # Fractional sizes (1.5, 2.5) must keep their decimal key; whole sizes drop it.
+    if float(size_mm2).is_integer():
+        size_key = str(int(size_mm2))
+    else:
+        size_key = str(size_mm2)
     base = CABLE_RATES_USD_M.get(size_key, size_mm2 * 0.18)
     return base * (phases / 3 * 0.85 + 0.15)
 
@@ -152,8 +157,16 @@ def _duct_area_m2(item: DuctBoQItem) -> float:
         return perim * item.length_m
 
 
+# Copper pipe rate keys are keyed by outside diameter (OD), not nominal bore (DN).
+COPPER_DN_TO_OD = {15: 15, 20: 22, 25: 28, 32: 35, 40: 42, 50: 54, 65: 76, 100: 108}
+
+
 def _pipe_rate(material: str, dn: int) -> float:
-    key = f"{material}_{dn}"
+    if material == "copper":
+        od = COPPER_DN_TO_OD.get(dn, dn)
+        key = f"copper_{od}"
+    else:
+        key = f"{material}_{dn}"
     if key in PIPE_RATES_USD_M:
         return PIPE_RATES_USD_M[key]
     return dn * 0.5 if material == "copper" else dn * 0.3

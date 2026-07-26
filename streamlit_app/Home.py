@@ -1,12 +1,10 @@
-import streamlit as st
-import sys
 import os
+import sys
+
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from utils import (
-    RED, BLACK, WHITE, DARK_GREY, MID_GREY, LIGHT_GREY,
-    api_get
-)
+from utils import API_BASE, BLACK, DARK_GREY, LIGHT_GREY, MID_GREY, RED, WHITE, api_get
 
 st.set_page_config(
     page_title="OpenMEP — MEP Engineering Suite",
@@ -243,8 +241,8 @@ for i, rd in enumerate(regions_data):
 st.markdown("<hr style='border-color: #333; margin: 2rem 0;'>", unsafe_allow_html=True)
 st.markdown(f"""
 <div style="text-align: center; color: {LIGHT_GREY}; font-size: 0.8rem;">
-    <b style="color: {RED}">OpenMEP</b> — Open-Source MEP Engineering Suite v0.1.0 &nbsp;|&nbsp;
-    Apache 2.0 License &nbsp;|&nbsp;
-    <a href="http://localhost:8000/docs" style="color: {RED}; text-decoration: none;">API Docs</a>
+    <b style="color: {RED}">OpenMEP</b> — Open-Source MEP Engineering Suite v0.2.0 &nbsp;|&nbsp;
+    MIT License &nbsp;|&nbsp;
+    <a href="{API_BASE}/docs" style="color: {RED}; text-decoration: none;">API Docs</a>
 </div>
 """, unsafe_allow_html=True)

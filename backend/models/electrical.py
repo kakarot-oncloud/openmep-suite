@@ -1,8 +1,9 @@
 """Pydantic models for Electrical API endpoints."""
 
-from pydantic import BaseModel, Field
-from typing import Optional, List
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class RegionEnum(str, Enum):

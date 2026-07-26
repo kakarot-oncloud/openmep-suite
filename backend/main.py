@@ -19,7 +19,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
 from backend.api.auth import verify_api_key
-from backend.api.routes import electrical, mechanical, plumbing, fire, boq, compliance, reports
+from backend.api.routes import boq, compliance, electrical, fire, mechanical, plumbing, reports
 
 # ---------------------------------------------------------------------------
 # Rate limiter — 60 req/min per IP globally; report endpoints are heavier

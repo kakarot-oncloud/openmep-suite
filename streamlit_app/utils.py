@@ -1,7 +1,8 @@
 import os
-import streamlit as st
-import requests
 from typing import Any, Dict, Optional
+
+import requests
+import streamlit as st
 
 # Environment-driven API base — works for localhost, Docker (api:8000), and VPS
 API_BASE = os.environ.get("API_BASE", "http://localhost:8000").rstrip("/")

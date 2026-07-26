@@ -1,7 +1,9 @@
 """Pydantic models for Mechanical/HVAC API endpoints."""
 
-from pydantic import BaseModel, Field
 from typing import List
+
+from pydantic import BaseModel, Field
+
 from .electrical import RegionEnum
 
 
