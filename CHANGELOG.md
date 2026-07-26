@@ -6,6 +6,30 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.4.0] — 2026-07-26
+
+### Added — Web front-end (new primary UI)
+
+- **`frontend/` — a modern React + TypeScript + Tailwind web app** that replaces the
+  Streamlit UI over time. Production-grade, fully responsive (mobile + desktop) with
+  **light and dark mode** (system-aware, persisted, no flash).
+- Design system with CSS-variable theming, reusable UI primitives, sticky navbar and footer.
+- **Landing site** (hero, features, disciplines, regions, CTA) plus a **Modules catalog** of all 26 modules.
+- **Live calculators** wired to the FastAPI API: **Cable Sizing** and **Cooling Load**
+  (typed client, loading/error states, result cards, load-breakdown bars, full calc sheet).
+- **Deployment**: multi-stage `frontend/Dockerfile` (Vite build → Nginx) that serves the
+  static SPA and proxies `/api` to the backend; `web` service added to `docker-compose.yml`
+  (port 3000); `VITE_API_BASE` / `API_UPSTREAM` configuration for any VPS.
+- **CI**: new `web-build` job (eslint + type-check + production build).
+
+### Notes
+
+- The Streamlit UI remains available during the migration; the React app is the new
+  default web interface. Remaining calculators are ported page-by-page in follow-up releases.
+- Suite version bumped to **0.4.0**.
+
+---
+
 ## [0.3.0] — 2026-07-26
 
 First tagged release. Bundles a suite-wide correctness pass with new

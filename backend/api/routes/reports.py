@@ -135,7 +135,7 @@ async def calculation_report(request: Request, req: CalculationReportRequest) ->
                 },
                 "software": {
                     "name": "OpenMEP",
-                    "version": "0.3.0",
+                    "version": "0.4.0",
                     "url": "https://github.com/kakarot-oncloud/openmep-suite",
                     "license": "MIT",
                 },

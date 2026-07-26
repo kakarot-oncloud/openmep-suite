@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Colours are stored as raw "R G B" triplets so Tailwind's <alpha-value>
+   modifier works (e.g. bg-brand/10). Light is default; .dark overrides. */
+@layer base {
+  :root {
+    --bg: 250 250 251;
+    --surface: 255 255 255;
+    --surface-2: 244 245 247;
+    --border: 226 229 234;
+    --fg: 17 24 39;
+    --muted: 100 108 122;
+    --brand: 37 99 235; /* blue-600 */
+    --brand-fg: 255 255 255;
+    --brand-soft: 224 233 255;
+    --success: 22 163 74;
+    --danger: 220 38 38;
+    --warn: 202 138 4;
+  }
+
+  .dark {
+    --bg: 8 11 18;
+    --surface: 17 22 33;
+    --surface-2: 24 31 45;
+    --border: 39 47 63;
+    --fg: 233 237 243;
+    --muted: 148 158 176;
+    --brand: 96 165 250; /* blue-400 for contrast on dark */
+    --brand-fg: 9 13 22;
+    --brand-soft: 30 45 78;
+    --success: 74 222 128;
+    --danger: 248 113 113;
+    --warn: 250 204 21;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    margin: 0;
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+}
+
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8;
+  }
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand to-indigo-500 bg-clip-text text-transparent dark:to-indigo-300;
+  }
+  .grid-bg {
+    background-image: radial-gradient(rgb(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}

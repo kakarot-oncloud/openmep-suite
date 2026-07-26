@@ -71,7 +71,7 @@ Report generation endpoints: 10 requests/minute per IP.
 Exceeded limits return HTTP 429 with a `Retry-After` header.
 Configure allowed origins via the `ALLOWED_ORIGINS` environment variable.
 """,
-    version="0.3.0",
+    version="0.4.0",
     contact={
         "name": "OpenMEP Engineering Suite",
         "url": "https://github.com/kakarot-oncloud/openmep-suite",
@@ -127,7 +127,7 @@ async def root():
     """OpenMEP API status — always public, no authentication required."""
     return {
         "name": "OpenMEP API",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "status": "operational",
         "regions": ["gcc", "europe", "india", "australia"],
         "disciplines": ["electrical", "mechanical", "plumbing", "fire"],

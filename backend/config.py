@@ -48,7 +48,7 @@ AUSTRALIA_STATES = {
 
 class Settings(BaseSettings):
     app_name: str = "OpenMEP API"
-    version: str = "0.3.0"
+    version: str = "0.4.0"
     debug: bool = False
     api_prefix: str = "/api"
 
