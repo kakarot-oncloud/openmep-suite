@@ -19,7 +19,17 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
 from backend.api.auth import verify_api_key
-from backend.api.routes import boq, compliance, electrical, fire, mechanical, plumbing, reports
+from backend.api.routes import (
+    boq,
+    compliance,
+    electrical,
+    exports,
+    fire,
+    mechanical,
+    plumbing,
+    projects,
+    reports,
+)
 
 # ---------------------------------------------------------------------------
 # Rate limiter — 60 req/min per IP globally; report endpoints are heavier
@@ -61,7 +71,7 @@ Report generation endpoints: 10 requests/minute per IP.
 Exceeded limits return HTTP 429 with a `Retry-After` header.
 Configure allowed origins via the `ALLOWED_ORIGINS` environment variable.
 """,
-    version="0.2.0",
+    version="0.3.0",
     contact={
         "name": "OpenMEP Engineering Suite",
         "url": "https://github.com/kakarot-oncloud/openmep-suite",
@@ -94,7 +104,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type", "Accept", "X-API-Key"],
 )
 
@@ -108,6 +118,8 @@ app.include_router(fire.router, prefix="/api")
 app.include_router(boq.router, prefix="/api")
 app.include_router(compliance.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
+app.include_router(projects.router, prefix="/api")
+app.include_router(exports.router, prefix="/api")
 
 
 @app.get("/", tags=["Status"])
@@ -115,7 +127,7 @@ async def root():
     """OpenMEP API status — always public, no authentication required."""
     return {
         "name": "OpenMEP API",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "status": "operational",
         "regions": ["gcc", "europe", "india", "australia"],
         "disciplines": ["electrical", "mechanical", "plumbing", "fire"],

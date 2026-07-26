@@ -6,6 +6,47 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.3.0] — 2026-07-26
+
+First tagged release. Bundles a suite-wide correctness pass with new
+persistence, batch, and export capabilities.
+
+### Added
+
+- **Persistent project workspaces (SQLite)** — `POST/GET/PUT/DELETE /api/projects` store a
+  project, its **design basis**, and saved calculation results across restarts. Save results
+  with `POST /api/projects/{id}/results`. Configurable via `OPENMEP_DB_PATH`.
+- **Design basis** — project-wide defaults (region, ambient, power factor, safety factor,
+  default cable type and installation method) inherited by calculations.
+- **Batch cable-schedule sizing** — `POST /api/electrical/cable-schedule` sizes a whole load
+  schedule in one call; each circuit inherits the design basis unless it overrides a value.
+- **CSV / Excel export** — `POST /api/exports/table.{xlsx,csv}` exports any `{columns, rows}`
+  table; `POST /api/exports/cable-schedule.xlsx` sizes a batch and returns the spreadsheet.
+- **Web UI pages** — *Cable Schedule (Batch)* and *Projects*.
+- **Tests** — `test_projects.py` and `test_batch_and_exports.py` (backend now 167 tests, ~84% coverage).
+
+### Fixed
+
+- **Sprinkler fire-pump power** was 1000× too high (L/s treated as m³/s).
+- **Cable sizing / panel schedule** crashed for Australia and India-PVC on the default
+  installation method; adapters now resolve a valid method for any caller, and cable sizing
+  upsizes to satisfy the voltage-drop limit instead of only warning.
+- **Generator step-load dip** (reactance factor cancelled out), **2N UPS undersizing**,
+  **3-phase fault conductor length**, and adiabatic k-factor corrected.
+- **Duct sizing** now honours the friction rate and velocity limit (equal-friction).
+- **BOQ** fractional cable / copper-pipe rate lookups; divide-by-zero guards across engines.
+- **Streamlit PDF Reports** page payloads/endpoints realigned to the API.
+- **Node.js Project API** now boots (the missing `src/lib` layer was implemented) with tests.
+- Version strings unified; CORS now permits `PUT`/`DELETE` for the project store.
+
+### Changed
+
+- Version bumped to **0.3.0** across all components.
+- Removed the stale, contradictory `test_electrical.py`; realigned cable-sizing reference
+  tests to the engine's design basis (400 V nominal LV per IEC 60038).
+
+---
+
 ## [0.2.1] — 2026-04-10
 
 ### Fixed
