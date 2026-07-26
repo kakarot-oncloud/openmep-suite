@@ -8,8 +8,8 @@ import ThemeToggle from "./ThemeToggle.tsx";
 const LINKS = [
   { to: "/", label: "Home" },
   { to: "/modules", label: "Modules" },
-  { to: "/calc/cable-sizing", label: "Cable Sizing" },
-  { to: "/calc/cooling-load", label: "Cooling Load" },
+  { to: "/tools/cable-schedule", label: "Batch" },
+  { to: "/tools/projects", label: "Projects" },
 ];
 
 const REPO = "https://github.com/kakarot-oncloud/openmep-suite";

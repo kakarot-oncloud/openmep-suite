@@ -8,8 +8,10 @@ import CoolingLoad from "./pages/calculators/CoolingLoad.tsx";
 import Home from "./pages/Home.tsx";
 import Modules from "./pages/Modules.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import BatchSchedule from "./pages/tools/BatchSchedule.tsx";
 import BOQ from "./pages/tools/BOQ.tsx";
 import Compliance from "./pages/tools/Compliance.tsx";
+import Projects from "./pages/tools/Projects.tsx";
 import Report from "./pages/tools/Report.tsx";
 
 function ScrollToTop() {
@@ -34,6 +36,8 @@ export default function App() {
           <Route path="/tools/boq" element={<BOQ />} />
           <Route path="/tools/compliance" element={<Compliance />} />
           <Route path="/tools/report" element={<Report />} />
+          <Route path="/tools/cable-schedule" element={<BatchSchedule />} />
+          <Route path="/tools/projects" element={<Projects />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
