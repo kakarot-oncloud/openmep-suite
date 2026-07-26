@@ -19,7 +19,9 @@ See SECURITY.md for the full security model.
 """
 
 import logging
+
 from fastapi import Header, HTTPException, Request
+
 from backend.config import settings
 
 logger = logging.getLogger(__name__)

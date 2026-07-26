@@ -4,8 +4,8 @@ Create and manage named report templates that control which modules are included
 page order, and the cover page introduction text. Templates are applied when
 generating submission packages.
 """
-import streamlit as st
 import requests
+import streamlit as st
 
 API = "http://localhost:3000/api"
 

@@ -1,16 +1,25 @@
 """Panel Schedule Builder — OpenMEP"""
 
-import streamlit as st
-import sys
 import os
+import sys
+
 import pandas as pd
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, LIGHT_GREY,
-    page_header, result_card, compliance_badge, section_title, format_summary,
-    api_post, region_selector,
-    TEAL, TEAL_L
+    DARK_GREY,
+    LIGHT_GREY,
+    TEAL_L,
+    WHITE,
+    api_post,
+    apply_theme_css,
+    compliance_badge,
+    format_summary,
+    page_header,
+    region_selector,
+    result_card,
+    section_title,
 )
 
 st.set_page_config(page_title="Panel Schedule — OpenMEP", page_icon="🗂", layout="wide")

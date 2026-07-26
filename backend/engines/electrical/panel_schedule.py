@@ -9,8 +9,8 @@ engineering summary per BS 7671 / IS 732 / AS/NZS 3000.
 import math
 from dataclasses import dataclass, field
 from typing import List, Optional
-from backend.engines.adapters_factory import get_electrical_adapter
 
+from backend.engines.adapters_factory import get_electrical_adapter
 
 # Standard MCB/MCCB ratings available universally
 MCB_RATINGS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63]
@@ -170,12 +170,31 @@ def calculate_panel_schedule(inp: PanelScheduleInput) -> PanelScheduleResult:
 
         # Cable size selection via adapter
         standard_sizes = adapter.get_standard_cable_sizes()
-        selected_size = standard_sizes[0]
+        method = adapter.resolve_installation_method(cir.cable_type, cir.installation_method)
+
+        def _rating(size: float):
+            try:
+                return adapter.get_current_rating(cir.cable_type, method, size)
+            except (ValueError, IndexError):
+                return None
+
+        selected_size = None
         for size in standard_sizes:
-            it = adapter.get_current_rating(cir.cable_type, cir.installation_method, size)
-            if it >= ib:
+            it = _rating(size)
+            if it is not None and it >= ib:
                 selected_size = size
                 break
+        if selected_size is None:
+            # No tabulated cable carries the design current — use the largest available
+            # and flag it, rather than silently defaulting to the smallest size.
+            for size in reversed(standard_sizes):
+                if _rating(size) is not None:
+                    selected_size = size
+                    break
+            selected_size = selected_size if selected_size is not None else standard_sizes[-1]
+            cr.notes = (cr.notes + " " if cr.notes else "") + (
+                f"⚠️ Load current {ib:.0f}A exceeds largest tabulated cable; verify with parallel runs."
+            )
 
         # Voltage drop check
         vd_mv_am = adapter.get_voltage_drop_mv_am(cir.cable_type, selected_size, cir.phases)

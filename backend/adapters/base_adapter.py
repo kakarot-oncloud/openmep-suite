@@ -7,11 +7,11 @@ the same interface — allowing calculation engines to swap
 standards tables and limits without changing the calculation logic.
 """
 
+import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-import json
-import numpy as np
 
+import numpy as np
 
 STANDARDS_DATA_DIR = Path(__file__).parent.parent / "standards_data"
 
@@ -173,6 +173,32 @@ class BaseElectricalAdapter(ABC):
     def get_standard_cable_sizes(self) -> list:
         """Return the standard cable sizes in mm²."""
         return [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 630]
+
+    def resolve_installation_method(self, cable_type: str, method: str) -> str:
+        """
+        Return a valid installation-method key for this adapter and cable type.
+
+        Regions use different installation-method schemes (BS 7671 letter codes
+        for GCC/Europe/India, AS/NZS column references for Australia), and not
+        every method exists for every cable type (e.g. India PVC only tabulates
+        methods B and D). This helper maps an unknown or cross-region method to
+        the nearest method that this adapter can actually rate, so a generic
+        default such as ``"C"`` never raises for a supported region/cable type.
+        """
+        probe = self.get_standard_cable_sizes()[0]
+        try:
+            self.get_current_rating(cable_type, method, probe)
+            return method
+        except (ValueError, IndexError, KeyError):
+            pass
+        for candidate in self.get_installation_methods().keys():
+            try:
+                self.get_current_rating(cable_type, candidate, probe)
+                return candidate
+            except (ValueError, IndexError, KeyError):
+                continue
+        # Nothing matched — return the original so the caller can surface the error.
+        return method
 
 
 class BaseMechanicalAdapter(ABC):

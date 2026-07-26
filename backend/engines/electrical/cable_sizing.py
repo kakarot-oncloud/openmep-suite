@@ -10,8 +10,9 @@ Supports: GCC (BS 7671), Europe (BS 7671), India (IS 3961/IS 732), Australia (AS
 import math
 from dataclasses import dataclass, field
 from typing import Optional
-from backend.engines.adapters_factory import get_electrical_adapter
+
 from backend.adapters.base_adapter import BaseElectricalAdapter
+from backend.engines.adapters_factory import get_electrical_adapter
 
 
 @dataclass
@@ -126,6 +127,8 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
 
     # ── Initialise adapter ────────────────────────────────────────────────────
     adapter: BaseElectricalAdapter = get_electrical_adapter(inp.region, inp.sub_region)
+    # Map the requested installation method to one this region/cable-type can rate.
+    method = adapter.resolve_installation_method(inp.cable_type, inp.installation_method)
     result.region = inp.region
     result.standard = adapter.cable_sizing_standard
     result.authority = getattr(adapter, "authority_name", adapter.standard_name)
@@ -134,7 +137,7 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
     result.circuit_to = inp.circuit_to
 
     # ── Supply voltage ────────────────────────────────────────────────────────
-    if inp.voltage_v:
+    if inp.voltage_v is not None:
         voltage = inp.voltage_v
     else:
         voltage = adapter.voltage_lv if inp.phases == 3 else adapter.voltage_phase
@@ -154,7 +157,7 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
     result.phases = inp.phases
 
     # ── Derating factors ──────────────────────────────────────────────────────
-    ambient = inp.ambient_temp_c if inp.ambient_temp_c else adapter.design_ambient_temp_air
+    ambient = inp.ambient_temp_c if inp.ambient_temp_c is not None else adapter.design_ambient_temp_air
     ca = adapter.get_ambient_temp_correction(inp.cable_type, ambient)
     cg = adapter.get_grouping_correction(inp.num_grouped_circuits, inp.cables_touching)
 
@@ -169,10 +172,16 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
     selected_it = None
     selected_iz = None
 
-    for size in standard_sizes:
+    def _rating(size: float):
+        """Tabulated rating for a size, or None if the size/method is not rateable."""
         try:
-            it = adapter.get_current_rating(inp.cable_type, inp.installation_method, size)
+            return adapter.get_current_rating(inp.cable_type, method, size)
         except (ValueError, IndexError):
+            return None
+
+    for size in standard_sizes:
+        it = _rating(size)
+        if it is None:
             continue
         iz = it * ca * cg
         if iz >= ib_per_run:
@@ -182,58 +191,69 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
             break
 
     if selected_size is None:
-        # Use largest available
-        selected_size = standard_sizes[-1]
-        selected_it = adapter.get_current_rating(inp.cable_type, inp.installation_method, selected_size)
-        selected_iz = selected_it * ca * cg
+        # Design current exceeds the largest rateable cable — use the largest one available.
+        for size in reversed(standard_sizes):
+            it = _rating(size)
+            if it is not None:
+                selected_size = size
+                selected_it = it
+                selected_iz = it * ca * cg
+                break
         result.warnings.append(
             f"⚠️ Design current {ib_per_run:.1f}A exceeds maximum cable rating. "
-            f"Consider multiple parallel runs or higher-rated cable system."
+            f"Consider multiple parallel runs or a higher-rated cable system."
         )
+
+    vd_limit = adapter.get_voltage_drop_limit(inp.circuit_type)
+
+    def _vd_pct(size: float) -> float:
+        vd_mv_am = adapter.get_voltage_drop_mv_am(inp.cable_type, size, inp.phases)
+        vd_v = ib_per_run * inp.cable_length_m * vd_mv_am / 1000  # in Volts
+        return (vd_v / voltage) * 100
+
+    # ── Voltage-drop-driven upsizing ──────────────────────────────────────────
+    # The selected conductor must satisfy BOTH current-carrying capacity AND the
+    # regional voltage-drop limit. If the current-based size fails on VD, upsize
+    # to the smallest larger size that is compliant on both counts.
+    vd_pct = _vd_pct(selected_size)
+    if vd_pct > vd_limit:
+        for size in [s for s in standard_sizes if s > selected_size]:
+            it_new = _rating(size)
+            if it_new is None:
+                continue
+            vd_pct_new = _vd_pct(size)
+            if vd_pct_new <= vd_limit:
+                result.warnings.append(
+                    f"⚠️ Cable upsized to {size}mm² to meet the {vd_limit}% voltage-drop limit "
+                    f"({selected_size}mm² gave {vd_pct:.2f}%, {size}mm² gives {vd_pct_new:.2f}%)."
+                )
+                selected_size = size
+                selected_it = it_new
+                selected_iz = it_new * ca * cg
+                vd_pct = vd_pct_new
+                break
+        else:
+            result.warnings.append(
+                f"⚠️ Voltage drop {vd_pct:.2f}% exceeds the {vd_limit}% limit even with the largest cable. "
+                f"Consider increasing the number of parallel runs."
+            )
 
     result.cable_type = inp.cable_type
     result.cable_type_description = adapter.get_cable_types().get(inp.cable_type, inp.cable_type)
-    result.installation_method = inp.installation_method
-    result.installation_method_description = adapter.get_installation_methods().get(
-        inp.installation_method, inp.installation_method
-    )
+    result.installation_method = method
+    result.installation_method_description = adapter.get_installation_methods().get(method, method)
     result.selected_size_mm2 = selected_size
     result.tabulated_rating_it_a = round(selected_it, 1)
     result.derated_rating_iz_a = round(selected_iz, 1)
     result.current_check_pass = selected_iz >= ib_per_run
 
-    # ── Voltage drop ──────────────────────────────────────────────────────────
-    vd_mv_am = adapter.get_voltage_drop_mv_am(inp.cable_type, selected_size, inp.phases)
-    # Voltage drop (mV) = Ib × L × mV/A/m / 1000  (× 2 for single-phase already in table)
-    vd_mv = ib_per_run * inp.cable_length_m * vd_mv_am / 1000  # in Volts
-    vd_pct = (vd_mv / voltage) * 100
-
-    vd_limit = adapter.get_voltage_drop_limit(inp.circuit_type)
+    vd_mv = vd_pct / 100 * voltage  # in Volts
     vd_pass = vd_pct <= vd_limit
-
     result.cable_length_m = inp.cable_length_m
     result.voltage_drop_mv = round(vd_mv * 1000, 1)  # Store in mV
     result.voltage_drop_pct = round(vd_pct, 2)
     result.voltage_drop_limit_pct = vd_limit
     result.voltage_drop_pass = vd_pass
-
-    if not vd_pass:
-        # Try next larger cable sizes to meet voltage drop
-        for size in [s for s in standard_sizes if s > selected_size]:
-            vd_mv_am_new = adapter.get_voltage_drop_mv_am(inp.cable_type, size, inp.phases)
-            vd_mv_new = ib_per_run * inp.cable_length_m * vd_mv_am_new / 1000
-            vd_pct_new = (vd_mv_new / voltage) * 100
-            if vd_pct_new <= vd_limit:
-                result.warnings.append(
-                    f"⚠️ Voltage drop {vd_pct:.2f}% exceeds limit {vd_limit}%. "
-                    f"Upsize to {size}mm² to achieve {vd_pct_new:.2f}% (within {vd_limit}% limit)."
-                )
-                break
-        else:
-            result.warnings.append(
-                f"⚠️ Voltage drop {vd_pct:.2f}% exceeds {vd_limit}% limit even with largest cable. "
-                f"Consider increasing number of parallel runs."
-            )
 
     # ── Protection device ─────────────────────────────────────────────────────
     protection_a = adapter.get_next_protection_rating(ib)
@@ -248,8 +268,14 @@ def calculate_cable_sizing(inp: CableSizingInput) -> CableSizingResult:
     # ── Fault protection (adiabatic) ──────────────────────────────────────────
     if inp.fault_level_ka:
         result.fault_level_ka = inp.fault_level_ka
-        k = 143  # k factor for 90°C XLPE copper (BS 7671 / AS/NZS)
-        if inp.region == "india":
+        # Adiabatic k factor (BS 7671 Table 43.1 / IEC 60364-5-54) by conductor material
+        # and insulation: XLPE/EPR copper = 143, PVC copper = 115, XLPE aluminium = 94.
+        ct = inp.cable_type.upper()
+        if "AL" in ct:
+            k = 94 if "XLPE" in ct or "X90" in ct else 76
+        elif "PVC" in ct:
+            k = 115
+        else:
             k = 143
         # S_min = sqrt(I²t) / k  where I in A, t in seconds
         i_fault = inp.fault_level_ka * 1000

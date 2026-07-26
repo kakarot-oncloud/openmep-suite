@@ -2,12 +2,19 @@
 
 import os
 import sys
+
 import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, page_header,
-    NAVY, TEAL, TEAL_L, WHITE, SILVER, RED, MID_GREY,
+    MID_GREY,
+    NAVY,
+    SILVER,
+    TEAL,
+    TEAL_L,
+    WHITE,
+    apply_theme_css,
+    page_header,
 )
 
 st.set_page_config(page_title="Quick Tour — OpenMEP", page_icon="🗺", layout="wide")

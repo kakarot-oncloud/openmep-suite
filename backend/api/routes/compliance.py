@@ -12,9 +12,10 @@ Disciplines covered:
   - Fire (sprinkler density, pressure, pump test, tank volume)
 """
 
+from typing import Any, List, Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, List, Optional
 
 router = APIRouter(prefix="/compliance", tags=["Compliance & Standards"])
 

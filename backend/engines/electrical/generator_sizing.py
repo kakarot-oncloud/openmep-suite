@@ -9,9 +9,9 @@ Supports: GCC (Cummins/FG Wilson practice), Europe (BS 7671),
 
 import math
 from dataclasses import dataclass, field
-from typing import List
-from backend.engines.adapters_factory import get_electrical_adapter
+from typing import List, Optional
 
+from backend.engines.adapters_factory import get_electrical_adapter
 
 # ISO 8528-1 derating: per 100m above 1000m ASL → 1% active, 2% reactive
 # Per 5.5°C above 25°C → 1% active power derating
@@ -83,7 +83,7 @@ class GeneratorSizingInput:
 
     # Site conditions
     site_altitude_m: float = 0.0       # Metres above sea level
-    ambient_temp_c: float = None        # Site ambient temperature
+    ambient_temp_c: Optional[float] = None  # Site ambient temperature
 
     # System preferences
     gen_voltage: int = 400             # Generator LV terminal voltage
@@ -220,12 +220,6 @@ def calculate_generator_sizing(inp: GeneratorSizingInput) -> GeneratorSizingResu
     result.motor_start_method = largest_motor_method
     result.required_kva_starting = round(required_kva_start, 2)
 
-    # Voltage dip on step load (approx): ΔV% ≈ (ΔkVA / Gen kVA) × 100 × Xd''
-    if derated_kva > 0:
-        step_dip = (largest_motor_kva_start / derated_kva) * 100 * TYPICAL_XD_PRIME_PRIME / 0.12
-        result.step_load_voltage_dip_pct = round(step_dip, 1)
-        result.step_load_ok = step_dip <= inp.max_voltage_dip_pct
-
     # ── Design kVA = max(running, starting) × oversizing ──────────────────
     base_kva = max(derated_kva, required_kva_start)
     design_kva = base_kva * regional["oversizing_factor"]
@@ -234,6 +228,13 @@ def calculate_generator_sizing(inp: GeneratorSizingInput) -> GeneratorSizingResu
     std_kva = _next_standard_kva(design_kva)
     result.standard_kva = std_kva
     result.standard_kw = round(std_kva * inp.rated_pf, 2)
+
+    # Voltage dip on largest-motor start, referred to the SELECTED generator size:
+    # ΔV% ≈ (motor starting kVA / generator kVA) × Xd''  (subtransient reactance).
+    if std_kva > 0:
+        step_dip = (largest_motor_kva_start / std_kva) * 100 * TYPICAL_XD_PRIME_PRIME
+        result.step_load_voltage_dip_pct = round(step_dip, 1)
+        result.step_load_ok = step_dip <= inp.max_voltage_dip_pct
 
     # ── Fuel consumption ──────────────────────────────────────────────────
     # Typical diesel consumption at 75% load: ~0.21 L/kWh

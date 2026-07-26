@@ -9,58 +9,88 @@
  ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝╚══════╝╚═╝
 ```
 
-**Open-source MEP engineering calculation suite · 4 regions · 26 modules · 7 platform features · production-ready**
+# OpenMEP Suite
 
-[![Release](https://img.shields.io/github/v/release/kakarot-oncloud/openmep-suite?label=release&color=2563eb)](https://github.com/kakarot-oncloud/openmep-suite/releases)
+**Open-source, standards-cited MEP engineering calculation platform — 4 regions · 26 modules · audit-ready reports**
+
 [![CI](https://github.com/kakarot-oncloud/openmep-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/kakarot-oncloud/openmep-suite/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kakarot-oncloud/openmep-suite/graph/badge.svg)](https://codecov.io/gh/kakarot-oncloud/openmep-suite)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
-[![License](https://img.shields.io/badge/License-MIT-16a34a)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-16a34a)](LICENSE)
 
-[![Regions](https://img.shields.io/badge/Regions-4%20%28GCC%20%7C%20Europe%20%7C%20India%20%7C%20Australia%29-0096C7)](#region-support)
-[![Modules](https://img.shields.io/badge/Modules-26-0096C7)](#modules)
-[![Platform Features](https://img.shields.io/badge/Platform%20Features-7-6d28d9)](#platform-features)
-[![codecov](https://codecov.io/gh/kakarot-oncloud/openmep-suite/graph/badge.svg)](https://codecov.io/gh/kakarot-oncloud/openmep-suite)
-
-[**🌐 Project Website**](https://kakarot-oncloud.github.io/openmep-suite/) · [**📄 API Docs**](docs/API_DOCS.md) · [**📦 Deployment Guide**](docs/DEPLOYMENT.md) · [**📖 User Guide**](docs/USER_GUIDE.md) · [**📐 Standards Reference**](docs/STANDARDS_REFERENCE.md)
+[Project Website](https://kakarot-oncloud.github.io/openmep-suite/) ·
+[API Docs](docs/API_DOCS.md) ·
+[Deployment](docs/DEPLOYMENT.md) ·
+[User Guide](docs/USER_GUIDE.md) ·
+[Standards Reference](docs/STANDARDS_REFERENCE.md)
 
 </div>
 
 ---
 
-## Who is this for?
+## Table of Contents
 
-> **MEP consultants, design engineers, contractors, and BIM coordinators** working across GCC, Europe/UK, India, and Australia/NZ.
-
-If you size cables, calculate cooling loads, design pipe systems, or specify fire protection — OpenMEP replaces tedious spreadsheets with a standards-compliant, API-driven calculation engine. Results cite the exact code clause. Reports are print-ready. Everything is open source.
-
----
-
-## Screenshots
-
-<table>
-  <tr>
-    <td align="center"><img src="docs/screenshots/dashboard_module_grid.png" width="400"/><br/><sub>Module Dashboard</sub></td>
-    <td align="center"><img src="docs/screenshots/cable_sizing_result.png" width="400"/><br/><sub>Cable Sizing — 4-region comparison</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/hvac_cooling_load_result.png" width="400"/><br/><sub>HVAC Cooling Load</sub></td>
-    <td align="center"><img src="docs/screenshots/pdf_report_page.png" width="400"/><br/><sub>Auto-generated PDF Calculation Report</sub></td>
-  </tr>
-</table>
-
-> Full animated walkthrough → [`docs/assets/openmep_demo.gif`](docs/assets/openmep_demo.gif)
+- [Overview](#overview)
+- [Why OpenMEP](#why-openmep)
+- [Modules](#modules)
+- [Region Support](#region-support)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [API Usage](#api-usage)
+- [Project & Reporting Features](#project--reporting-features)
+- [Configuration](#configuration)
+- [Security](#security)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## Why OpenMEP?
+## Overview
 
-Commercial MEP tools cost thousands per seat and lock results in proprietary formats. OpenMEP is built on three principles:
+OpenMEP is a calculation engine for **Mechanical, Electrical, Plumbing, and Fire-protection**
+design, built for consultants, design engineers, contractors, and BIM coordinators working
+across **GCC, Europe/UK, India, and Australia/NZ**.
 
-- **Region-aware** — design codes switch automatically: BS 7671 for GCC/UK, IS 3961 for India, AS/NZS 3008 for Australia. Three-level selector: Region → Country/State → Utility/Authority.
-- **Standard-cited** — every result references the exact clause and table used. Full numerical tables (ampacity, correction factors, pressure drop, etc.) are embedded directly in the codebase — no external lookups.
-- **Audit-ready** — one-click PDF reports with letterhead, step-by-step calculation workings, and an engineer sign-off block.
+It replaces spreadsheets with a standards-compliant, API-driven engine:
+
+- **Region-aware** — design codes switch automatically (BS 7671 / IEC 60364 for GCC & Europe,
+  IS 3961 / IS 732 for India, AS/NZS 3008 / AS/NZS 3000 for Australia).
+- **Standard-cited** — every result references the exact clause and table used. Full numerical
+  tables (ampacity, correction factors, voltage drop, sprinkler densities…) are embedded in the
+  codebase — no external lookups.
+- **Audit-ready** — one-click PDF reports with letterhead, step-by-step workings, and an
+  engineer sign-off block.
+
+It ships as three cooperating services:
+
+| Service | Tech | Port | Responsibility |
+|---------|------|------|----------------|
+| **Calculation API** | FastAPI (Python 3.11) | `8000` | All 26 engineering calculations |
+| **Web UI** | Streamlit | `8501` | Interactive calculators + report generation |
+| **Project API** | Node.js / Express (TypeScript) | `8080` | Project workspaces, versioning, submission packaging, branding |
+
+The Web UI and Project API both call the Calculation API — the Python service is the single
+source of truth for engineering results.
+
+---
+
+## Why OpenMEP
+
+Commercial MEP tools cost thousands per seat and lock results in proprietary formats. OpenMEP
+is built on three principles:
+
+- **Transparency** — the standards tables live in the repo (`backend/standards_data/` and the
+  regional adapters). You can read exactly which value drove every result.
+- **Portability** — plain JSON in, plain JSON out. Results export to PDF, Excel, and CSV.
+- **Extensibility** — the **Standards Adapter pattern** keeps calculation logic identical across
+  regions; adding a country means adding a data adapter, not rewriting engines. See
+  [`docs/contributing/ADDING_NEW_REGION.md`](docs/contributing/ADDING_NEW_REGION.md).
 
 ---
 
@@ -74,9 +104,9 @@ Commercial MEP tools cost thousands per seat and lock results in proprietary for
 | 2 | Voltage Drop | IEC 60364-5-52 |
 | 3 | Maximum Demand | IEE / DEWA / IS 18–1 |
 | 4 | Short Circuit | IEC 60909 |
-| 5 | Lighting Design | CIBSE LG7 / IS 3646 |
-| 6 | Power Factor Correction | IEEE 1459 |
-| 7 | Generator Sizing | IEC 60034 |
+| 5 | Lighting Design | EN 12464-1 / CIBSE / IS 3646 |
+| 6 | Power Factor Correction | IEC 60831 / IEEE 1459 |
+| 7 | Generator Sizing | ISO 8528 / IEC 60034 |
 | 8 | UPS Sizing | IEC 62040 |
 | 9 | Panel Schedule | Multi-region |
 
@@ -84,10 +114,10 @@ Commercial MEP tools cost thousands per seat and lock results in proprietary for
 
 | # | Module | Standards |
 |---|--------|-----------|
-| 10 | Cooling Load | ASHRAE 90.1 / CIBSE Guide A |
-| 11 | Duct Sizing | SMACNA / CIBSE Guide C |
+| 10 | Cooling Load | ASHRAE / CIBSE Guide A |
+| 11 | Duct Sizing (equal friction) | ASHRAE / CIBSE Guide C |
 | 12 | Heating Load | EN 12831 / CIBSE Guide A |
-| 13 | Ventilation | ASHRAE 62.1 |
+| 13 | Ventilation | ASHRAE 62.1 / AS 1668.2 |
 
 ### Plumbing (6)
 
@@ -98,7 +128,7 @@ Commercial MEP tools cost thousands per seat and lock results in proprietary for
 | 16 | Pump Sizing | Darcy-Weisbach |
 | 17 | Hot Water System | BS EN 806-3 |
 | 18 | Rainwater Harvesting | BS 8515 / AS 3500 |
-| 19 | Plumbing Tank Sizing | BS EN 806 / IS 1172 |
+| 19 | Tank Sizing | BS EN 806 / IS 1172 |
 
 ### Fire Protection (4)
 
@@ -114,265 +144,240 @@ Commercial MEP tools cost thousands per seat and lock results in proprietary for
 | # | Module | What it does |
 |---|--------|-------------|
 | 24 | BOQ Generator | Bill of Quantities in FIDIC / NRM2 / CPWD / AIQS format |
-| 25 | Compliance Checker | Validates all module results against regional limits, flags the exact failing clause |
-| 26 | PDF Reports + Submittal Tracker | A4 calc sheets with letterhead and sign-off; submittal log with status tracking |
-
----
-
-## Platform Features
-
-Seven features that sit across all calculation modules, turning individual results into a complete project workflow.
-
-### 1 · Project Workspace — Single Source of Truth
-
-Store your building data once: project name, region, number of floors, space types, and design conditions. Every calculation module reads from the workspace automatically — change the region or ambient temperature and all 26 modules update without re-entering data.
-
-- **REST API:** `POST /api/projects` · `GET /api/projects/{id}` · `PUT /api/projects/{id}`
-- **Streamlit:** *Project Workspace* page — fill in once, use everywhere
-- Persists between sessions; JSON export for archiving
-
-### 2 · Submission Packager
-
-One click generates a ready-to-send ZIP archive containing:
-- All calculation PDFs for the project
-- Cover letter (auto-populated with project metadata)
-- Cross-module compliance matrix
-- BOQ summary sheet
-- Version log (who ran what and when)
-
-```bash
-curl -X POST http://localhost:8080/api/submission/package \
-  -H "Content-Type: application/json" \
-  -d '{"projectId": "proj_abc123", "includeModules": ["electrical","mechanical","fire"]}'
-# Returns a downloadable ZIP
-```
-
-### 3 · Compliance Guardian
-
-Runs automatically before every submission package is built. Checks every module result against the regional authority limits and flags any breach with the exact standard clause.
-
-| Check | Example rule |
-|-------|-------------|
-| Voltage drop | DEWA §4.3.2 — max 2.5 % for final circuits |
-| Cable temperature | IS 732 §6.4 — ambient derating mandatory above 40 °C |
-| Sprinkler spacing | NFPA 13 §8.6.3 — max 4.6 m centre-to-centre |
-| Pipe velocity | AS/NZS 3500 §3.4 — max 3 m/s cold water |
-
-Returns structured JSON with `PASS`, `WARN`, and `FAIL` per module — the Streamlit UI shows a colour-coded summary.
-
-```bash
-curl -X POST http://localhost:8080/api/submission/compliance-check \
-  -H "Content-Type: application/json" \
-  -d '{"moduleResults": [{"module":"electrical","region":"DEWA","parameters":{"voltage_drop_percent":3.1}}]}'
-```
-
-### 4 · BIM / IFC & CSV Bridge
-
-**Import:** Upload an IFC file or a Revit schedule CSV — the bridge extracts room data, floor counts, space categories, and design loads and auto-populates the Project Workspace. No manual re-entry from the BIM model.
-
-**Export:** Download calculated results as:
-- CSV (column-per-parameter, ready for Excel or Revit lookup tables)
-- IFC property sets (`.ifc`) ready to import back into Revit or ArchiCAD
-
-```bash
-# Import from IFC (Node.js API — port 8080)
-curl -X POST http://localhost:8080/api/bim/import \
-  -F "file=@building_model.ifc" \
-  -F "projectId=proj_abc123"
-
-# Export results as CSV
-curl "http://localhost:8080/api/bim/export/csv?projectId=proj_abc123&module=electrical"
-
-# Export as IFC property sets
-curl "http://localhost:8080/api/bim/export/ifc?projectId=proj_abc123"
-```
-
-### 5 · Value Engineering & Cost Optimizer
-
-After every calculation, the optimizer scans compliant alternatives and ranks them by estimated cost saving in the local currency (AED, INR, GBP, AUD). Every suggestion is rule-based and cites the standard that makes it valid — no AI guessing.
-
-Example output for a cable sizing result:
-
-| Option | Cable | Saving (AED) | Standard basis |
-|--------|-------|-------------|----------------|
-| Current | 70 mm² XLPE/Cu | — | BS 7671 Table 4D5A |
-| **Option A** | 50 mm² XLPE/Al | **−18%** | BS 7671 §523.6 — Al permitted for ≥16 mm² |
-| Option B | 70 mm² XLPE/Al | −11% | BS 7671 §523.6 |
-
-```bash
-curl -X POST http://localhost:8080/api/optimize/electrical \
-  -H "Content-Type: application/json" \
-  -d '{"projectId":"proj_abc123","region":"gcc","load_kw":45,"cable_type":"XLPE_CU"}'
-```
-
-### 6 · Project Version History
-
-Full audit trail of every project configuration state. Each save captures project metadata, engineering parameters, compliance status, and a BOQ snapshot with cost deltas (e.g. _BOQ +AED 124,000_ between versions). Includes a diff viewer comparing any two versions.
-
-- **REST API:** `POST /api/projects/{id}/versions` · `GET /api/projects/{id}/versions`
-- **Streamlit:** *Version History* page (page 27)
-- Version numbers are sequential and append-only — no overwriting
-
-### 7 · Company Branding & Report Templates
-
-Firms store a logo, stamp image, primary colour hex code, and footer text once per project. Every PDF calculation report — cable sizing, cooling load, fire protection, and the rest — auto-injects the branding (branded letterhead, stamp block, coloured headings, custom footer). Custom report templates let you define per-client header/footer overrides.
-
-- **REST API:** `POST/GET /api/projects/{id}/branding` · `POST/GET /api/projects/{id}/templates`
-- **Streamlit:** *Company Branding* (page 28) · *Report Templates* (page 29)
-- Supports logo, letterhead, and stamp as base64-encoded images
+| 25 | Compliance Checker | Validates module results against regional limits, flags the failing clause |
+| 26 | PDF Reports + Submittal Tracker | A4 calc sheets with letterhead and sign-off; submittal log |
 
 ---
 
 ## Region Support
 
-| Region | Coverage | Standards | Design Temp |
-|--------|----------|-----------|-------------|
-| [**GCC**](docs/regions/GCC_GUIDE.md) | UAE · KSA · Qatar · Kuwait · Bahrain · Oman | BS 7671, IEC 60364, DEWA / ADDC / SEC / KAHRAMAA, NFPA | 50 °C |
-| [**Europe / UK**](docs/regions/EUROPE_GUIDE.md) | UK · Ireland · Germany · France · Netherlands · Nordics | BS 7671:2018+A2:2022, IEC 60364, CIBSE, EN 12831 | 30 °C |
-| [**India**](docs/regions/INDIA_GUIDE.md) | All states + UTs (9 utility zones) | IS 3961, IS 732, IS 1646, NBC 2016, CPWD DSR | 45 °C |
-| [**Australia / NZ**](docs/regions/AUSTRALIA_GUIDE.md) | All states + New Zealand | AS/NZS 3008, AS/NZS 3000, AS 3500, BCA/NCC | 40 °C |
+| Region | Coverage | Standards | Design Ambient |
+|--------|----------|-----------|----------------|
+| [**GCC**](docs/regions/GCC_GUIDE.md) | UAE · KSA · Qatar · Kuwait · Bahrain · Oman | BS 7671, IEC 60364, DEWA / ADDC / SEC / KAHRAMAA, NFPA | 50 °C air |
+| [**Europe / UK**](docs/regions/EUROPE_GUIDE.md) | UK · Ireland · Germany · France | BS 7671:2018+A2:2022, IEC 60364, CIBSE, EN 12831 | 30 °C air |
+| [**India**](docs/regions/INDIA_GUIDE.md) | 8 utility zones | IS 3961, IS 732, IS 7098, NBC 2016, CPWD | 45 °C air |
+| [**Australia / NZ**](docs/regions/AUSTRALIA_GUIDE.md) | All states + New Zealand | AS/NZS 3008, AS/NZS 3000, AS 3500, NCC | 40 °C air |
 
-Three-level region selector:
-```
-GCC        → UAE    → DEWA (Dubai) / ADDC (Abu Dhabi) / SEWA (Sharjah)
-           → KSA    → SEC
-           → Qatar  → KAHRAMAA
-India      → Maharashtra → MSEDCL
-           → Karnataka   → BESCOM
-Australia  → NSW    → Ausgrid / Endeavour Energy
-           → VIC    → CitiPower / Powercor
-```
+Nominal LV supply is 400 V / 230 V for GCC, Europe and Australia (IEC 60038 harmonised) and
+415 V / 240 V for India. A three-level selector resolves **Region → Country/State → Utility/Authority**.
 
 ---
 
-## Standards Inside the Code
+## Architecture
 
-All regional adapters embed the full numerical tables from the published standards — no placeholders, no external lookups. Example from [`backend/adapters/gcc/`](backend/adapters/gcc/):
+OpenMEP is built on the **Standards Adapter pattern**: calculation engines contain the
+region-independent physics, and each regional adapter supplies the standard's numerical tables
+and limits.
 
-**BS 7671 Table 4D5A — XLPE/Cu 3-phase ampacity & voltage drop**
+```
+                 ┌──────────────────┐        ┌──────────────────┐
+   Streamlit UI  │                  │        │  Node.js Project │
+   (port 8501) ──┤  FastAPI engine  │◄───────┤  API (port 8080) │
+                 │   (port 8000)    │  HTTP  │  projects/versions│
+   curl / SDK ──►│                  │        │  branding/submit  │
+                 └────────┬─────────┘        └──────────────────┘
+                          │
+              ┌───────────┴────────────┐
+              │  calculation engines   │   region-independent physics
+              └───────────┬────────────┘
+                          │  resolves standard tables via
+              ┌───────────┴────────────┐
+              │  regional adapters      │   gcc · europe · india · australia
+              │  + standards_data/*.json│
+              └────────────────────────┘
+```
 
-| mm² | Method C (A) | Method E (A) | VD (mV/A/m) |
-|-----|-------------|-------------|-------------|
-| 2.5 | 34 | 39 | 18.0 |
-| 10  | 77 | 88 | 4.4  |
-| 25  | 133 | 152 | 1.75 |
-| 50  | 198 | 227 | 0.93 |
-| 95  | 306 | 352 | 0.47 |
-| 185 | 448 | 516 | 0.24 |
-
-**Temperature correction Ca (XLPE, ref 30 °C):** 40 °C → 0.91 · 45 °C → 0.87 · 50 °C → 0.82
-
-Full standards reference → [**docs/STANDARDS_REFERENCE.md**](docs/STANDARDS_REFERENCE.md)
+Adding a new calculation means adding an engine + a Pydantic model + a route. Adding a new
+region means adding an adapter. Neither touches the other. Guides:
+[Adding a calculator](docs/contributing/ADDING_NEW_CALCULATOR.md) ·
+[Adding a region](docs/contributing/ADDING_NEW_REGION.md).
 
 ---
 
 ## Quick Start
 
+### Local (Python)
+
 ```bash
 git clone https://github.com/kakarot-oncloud/openmep-suite.git
-cd openmep
+cd openmep-suite
 pip install -r requirements.txt
 
-# Terminal 1 — API backend
+# Terminal 1 — Calculation API
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 
-# Terminal 2 — Streamlit UI
+# Terminal 2 — Web UI
 streamlit run streamlit_app/app.py
-
-# Terminal 3 — Node.js Project Management API (optional, needed for Platform Features)
-cd src && npm install && npm run dev
 ```
 
-- **UI** → http://localhost:8501
-- **API (Swagger)** → http://localhost:8000/docs
-- **Node.js API** → http://localhost:8080 *(projects, versioning, submission, branding)*
+| Service | URL |
+|---------|-----|
+| Web UI | http://localhost:8501 |
+| API (Swagger) | http://localhost:8000/docs |
+| API (ReDoc) | http://localhost:8000/redoc |
 
-**Docker (single command):**
+The optional Project API (workspaces, versioning, submission packaging):
+
+```bash
+cd src && npm install && npm run dev   # http://localhost:8080
+```
+
+### Docker (all services)
+
 ```bash
 cp .env.example .env
-# Set POSTGRES_PASSWORD in .env before running
+# review .env, then:
 docker-compose up -d
 ```
 
-Once all containers are healthy:
 | Service | URL | Description |
 |---------|-----|-------------|
 | Streamlit UI | http://localhost:8501 | Main web interface |
-| FastAPI (Python) | http://localhost:8000/docs | Calculation engine — Swagger UI |
-| Node.js API | http://localhost:8080 | Project management API |
+| Calculation API | http://localhost:8000/docs | Engineering engine — Swagger UI |
+| Project API | http://localhost:8080 | Project management API |
 
-**Google Colab — zero install:**
+### Google Colab — zero install
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kakarot-oncloud/openmep-suite/blob/main/colab_launcher.ipynb)
 
 ---
 
-## Sample API Calls
+## API Usage
 
-Full reference → [**docs/API_DOCS.md**](docs/API_DOCS.md)
+All calculation endpoints accept and return JSON. Full reference → [**docs/API_DOCS.md**](docs/API_DOCS.md).
+The examples below are validated against the current API schema.
 
 ```bash
 # Cable sizing — GCC/DEWA, 45 kW, XLPE/Cu, 80 m run
 curl -X POST http://localhost:8000/api/electrical/cable-sizing \
   -H "Content-Type: application/json" \
-  -d '{"region":"gcc","sub_region":"dewa","load_kw":45,"power_factor":0.85,"phases":3,"cable_type":"XLPE_CU","installation_method":"C","cable_length_m":80,"ambient_temp_c":40}'
+  -d '{"region":"gcc","sub_region":"dewa","load_kw":45,"power_factor":0.85,
+       "phases":3,"cable_type":"XLPE_CU","installation_method":"C",
+       "cable_length_m":80,"ambient_temp_c":40}'
 
-# Cooling load — ASHRAE, 500 m² open plan
+# Cooling load — 500 m² open-plan office
 curl -X POST http://localhost:8000/api/mechanical/cooling-load \
   -H "Content-Type: application/json" \
-  -d '{"region":"gcc","area_m2":500,"occupancy":"office","glazing_ratio":0.4,"floor":5}'
+  -d '{"region":"gcc","zone_name":"Open Plan L5","floor_area_m2":500,
+       "glass_area_m2":80,"occupancy":40}'
 
-# Sprinkler design — light hazard, BS EN 12845
+# Sprinkler design — Ordinary Hazard 1, BS EN 12845
 curl -X POST http://localhost:8000/api/fire/sprinkler \
   -H "Content-Type: application/json" \
-  -d '{"region":"gcc","hazard_class":"light","area_m2":600,"coverage_per_head_m2":12}'
+  -d '{"occupancy_hazard":"OH1","area_protected_m2":600}'
 
-# Create a project workspace
-curl -X POST http://localhost:8080/api/projects \
+# Maximum demand from a load schedule
+curl -X POST http://localhost:8000/api/electrical/maximum-demand \
   -H "Content-Type: application/json" \
-  -d '{"name":"Tower A","region":"gcc","subRegion":"dewa","totalFloors":28,"totalAreaM2":32000}'
+  -d '{"region":"gcc","loads":[{"description":"Lighting","quantity":1,
+       "unit_kw":10,"power_factor":0.9}]}'
 
-# Run compliance check (Node.js API — port 8080)
-curl -X POST http://localhost:8080/api/submission/compliance-check \
+# Water pipe sizing — copper, 120 loading units
+curl -X POST http://localhost:8000/api/plumbing/pipe-sizing \
   -H "Content-Type: application/json" \
-  -d '{"moduleResults":[{"module":"electrical","region":"DEWA","parameters":{"voltage_drop_percent":3.1}}]}'
-
-# Get value engineering options (Node.js API — port 8080)
-curl -X POST http://localhost:8080/api/optimize/electrical \
-  -H "Content-Type: application/json" \
-  -d '{"projectId":"proj_abc123","region":"gcc","load_kw":45,"cable_type":"XLPE_CU"}'
+  -d '{"region":"gcc","flow_units":120,"pipe_material":"copper"}'
 ```
 
-**Rate limit:** 60 req/min per IP. Returns HTTP 429 with `Retry-After` on breach.
+**Rate limits:** 60 requests/min per IP on calculation endpoints, 10/min on report generation.
+Exceeded limits return HTTP 429 with a `Retry-After` header.
+
+---
+
+## Project & Reporting Features
+
+The Node.js Project API (port 8080) turns individual calculations into a project workflow.
+The following are implemented today:
+
+### Project Workspace
+Store building data once (region, floors, space types, design conditions); every module reads
+from it. `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/{id}`, `POST /api/projects/{id}/refresh`.
+
+### Version History
+Append-only snapshots of each project state with a diff/compare endpoint.
+`GET /api/projects/{id}/versions`, `GET /api/projects/{id}/versions/{n}`,
+`GET /api/projects/{id}/compare`, `POST /api/projects/{id}/restore/{n}`.
+
+### Company Branding & Report Templates
+Per-project logo, stamp, colour and footer, auto-injected into PDF reports; custom templates.
+`GET/PUT /api/projects/{id}/branding`, `POST /api/projects/{id}/branding/upload`,
+`GET/POST/PUT/DELETE /api/projects/{id}/templates`.
+
+### Compliance Guardian
+Checks module results against regional authority limits and returns `PASS` / `WARN` / `FAIL`
+per module with the standard clause. `POST /api/submission/compliance-check`.
+
+### Submission Packager
+Generates a ready-to-send ZIP (calculation PDFs, compliance matrix, branding) for a project.
+`POST /api/submission/package`.
+
+> The Project API stores data in-memory for evaluation. See the [Roadmap](#roadmap) for
+> persistence and the planned BIM/IFC bridge and value-engineering optimizer.
+
+---
+
+## Configuration
+
+All settings are environment variables (see [`.env.example`](.env.example) for the full list).
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `API_KEY` | *(unset)* | If set, requires `X-API-Key` on all calculation endpoints |
+| `ALLOWED_ORIGINS` | `http://localhost:8501,http://localhost:8000` | Comma-separated CORS allow-list |
+| `API_BASE` | `http://localhost:8000` | Base URL the Streamlit UI calls |
+| `DEBUG` | `false` | Verbose error payloads (never enable in production) |
+| `PORT` | `8080` | Node.js Project API port |
 
 ---
 
 ## Security
 
-### API Key Authentication
+### Optional API-key authentication
 
-The API supports optional `X-API-Key` authentication. Set the `API_KEY` environment variable to require the header on all calculation endpoints. Health check and documentation endpoints remain public.
+Set `API_KEY` to require the `X-API-Key` header on every calculation endpoint. Health checks
+(`/health`) and documentation (`/docs`, `/redoc`, `/openapi.json`) remain public.
 
 ```bash
-# Generate a key and add to .env
-echo "API_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))")" >> .env
+# Generate a key and add it to .env
+echo "API_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')" >> .env
 
-# Authenticated request:
-curl -X POST http://localhost:8000/api/electrical/cable-sizing \\
-  -H "X-API-Key: $API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"region":"gcc","load_kw":45,...}'
-
-# /health and /docs are always public — no key required
+# Authenticated request
+curl -X POST http://localhost:8000/api/electrical/cable-sizing \
+  -H "X-API-Key: $API_KEY" -H "Content-Type: application/json" \
+  -d '{"region":"gcc","load_kw":45,"cable_length_m":80}'
 ```
 
-When `API_KEY` is **not** set (the default), the API is open — appropriate for local development and deployments on private networks.
+When `API_KEY` is unset (the default), the API is open — appropriate for local development or
+deployments already behind a reverse proxy / VPN.
 
-### Container Security
+### Other hardening
+- CORS is closed by default to localhost; widen it explicitly with `ALLOWED_ORIGINS`.
+- Error responses hide internals unless `DEBUG=true`.
+- Docker containers run as a non-root user.
 
-Docker containers run as a non-root user (`appuser`). Each service in `docker-compose.yml` runs a single process — no `sh -c "... & ..."` anti-patterns.
+Full disclosure policy → [SECURITY.md](SECURITY.md).
 
-See [SECURITY.md](SECURITY.md) for the full disclosure policy.
+---
+
+## Testing
+
+The backend ships **149 automated tests** (~83 % line coverage), run in CI on every push and PR.
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pytest                                         # all tests
+pytest --cov=backend --cov-report=term-missing # with coverage
+ruff check backend/ streamlit_app/             # lint
+```
+
+| Test file | Scope |
+|-----------|-------|
+| `test_cable_sizing.py` | Cable sizing against BS 7671 / IS 3961 / AS/NZS 3008 reference values, all 4 regions |
+| `test_electrical_endpoints.py` | Voltage drop, max demand, short circuit, lighting, generator, PF correction, UPS, panel schedule |
+| `test_hvac.py` | Cooling load (4 regions), duct sizing, heating, ventilation |
+| `test_plumbing.py` | Pipe sizing, drainage, pump, hot water, rainwater, tank |
+| `test_fire.py` | Sprinkler design flow, fire pump, fire tank |
+
+The Node.js Project API has its own Vitest suite (`cd src && npm test`).
 
 ---
 
@@ -380,128 +385,69 @@ See [SECURITY.md](SECURITY.md) for the full disclosure policy.
 
 | Platform | Best For | Effort |
 |----------|----------|--------|
-| Local | Development, evaluation | ⭐ Easiest |
-| Google Colab | Zero-install, one-off calcs | ⭐ Easiest |
-| Streamlit Cloud | Free hosted UI | ⭐ Easiest |
-| Docker | Teams, self-hosted | ⭐⭐ Easy |
-| Ubuntu VPS | Production, HTTPS | ⭐⭐ Intermediate |
-| Termux (Android) | Full install on phone | ⭐ Easiest |
+| Local | Development, evaluation | Easiest |
+| Google Colab | Zero-install, one-off calcs | Easiest |
+| Streamlit Cloud | Free hosted UI | Easiest |
+| Docker Compose | Teams, self-hosted | Easy |
+| Ubuntu VPS + HTTPS | Production | Intermediate |
 
-Full instructions → [**docs/DEPLOYMENT.md**](docs/DEPLOYMENT.md)
+Full instructions → [**docs/DEPLOYMENT.md**](docs/DEPLOYMENT.md).
 
 ---
 
 ## Project Structure
 
 ```
-openmep/
-├── backend/
-│   ├── main.py                      # FastAPI entry — rate limiting, CORS
-│   ├── api/routes/                  # REST endpoints
-│   │   ├── electrical.py            # 9 electrical modules
-│   │   ├── mechanical.py            # HVAC modules
-│   │   ├── plumbing.py              # Plumbing modules
-│   │   ├── fire.py                  # Fire protection modules
-│   │   ├── boq.py                   # BOQ generator
-│   │   ├── compliance.py            # Compliance checker
-│   │   └── reports.py               # PDF report generation
-│   ├── engines/                     # Pure-Python calculation engines
-│   │   ├── electrical/              # 9 engine files
-│   │   ├── mechanical/              # cooling_load, duct_sizing
-│   │   ├── plumbing/                # pipe_sizing
-│   │   └── fire/                    # sprinkler_calc
-│   ├── adapters/                    # Regional standards adapters
-│   │   ├── gcc/                     # BS 7671 + authority overrides
-│   │   ├── europe/                  # BS 7671:2018+A2:2022, IEC 60364
-│   │   ├── india/                   # IS 3961, IS 732, NBC 2016
-│   │   └── australia/               # AS/NZS 3008, AS/NZS 3000
-│   ├── standards_data/              # Embedded standards tables (JSON)
-│   ├── models/                      # Pydantic v2 request/response models
-│   └── tests/                       # 194 automated tests
-├── streamlit_app/
-│   ├── Home.py                      # Landing page
-│   ├── app.py                       # Sidebar navigation
-│   ├── utils.py                     # Shared UI helpers, API client
-│   └── pages/                       # 26 calculator + feature pages
-├── docs/
-│   ├── API_DOCS.md                  # Full REST API reference
-│   ├── DEPLOYMENT.md                # All deployment options
-│   ├── USER_GUIDE.md                # End-user walkthrough
-│   ├── STANDARDS_REFERENCE.md       # Standards tables index
-│   ├── regions/                     # Per-region deep-dive guides
-│   ├── contributing/                # Adding calculators and regions
-│   └── sample_outputs/              # Sample PDF and BOQ files
-├── .github/workflows/ci.yml         # CI — Python (ruff + pytest) + Node.js (vitest) on every PR
-├── docker-compose.yml
-├── Dockerfile
-├── src/                             # TypeScript Project Management API (Node.js/Express)
-│   ├── engines/                     # Compliance checks, PDF generation, ZIP packaging
-│   ├── lib/                         # Project/version/branding stores
-│   │   ├── calc-engine.ts           # Engineering parameter derivation (sync)
-│   │   ├── logger.ts                # Structured logger
-│   │   ├── project-store.ts         # Project CRUD + mandatory version hooks
-│   │   ├── version-store.ts         # Version snapshots + BOQ delta comparison
-│   │   └── branding-store.ts        # Company branding + report templates
-│   └── routes/                      # /api/projects, /api/submission endpoints
-├── requirements.txt                 # Runtime deps (includes slowapi)
-├── requirements-dev.txt             # Dev/test deps (pytest, ruff, httpx)
-└── .env.example                     # All env vars, fully documented
+openmep-suite/
+├── backend/                          # FastAPI calculation service
+│   ├── main.py                       # App entry — rate limiting, CORS, auth
+│   ├── config.py                     # Settings, regional sub-region maps
+│   ├── api/routes/                   # REST endpoints (electrical, mechanical, …)
+│   ├── engines/                      # Pure-Python calculation engines
+│   │   ├── electrical/               # cable_sizing, voltage_drop, short_circuit, …
+│   │   ├── mechanical/               # cooling_load, duct_sizing
+│   │   ├── plumbing/                 # pipe_sizing
+│   │   └── fire/                     # sprinkler_calc
+│   ├── adapters/                     # Regional standards adapters (adapter pattern)
+│   │   ├── gcc/ · europe/ · india/ · australia/
+│   │   └── base_adapter.py           # Abstract interface shared by all regions
+│   ├── standards_data/               # Embedded standards tables (JSON)
+│   ├── models/                       # Pydantic v2 request/response models
+│   └── tests/                        # Pytest suite (149 tests)
+├── streamlit_app/                    # Web UI
+│   ├── app.py                        # Entry + sidebar navigation
+│   ├── utils.py                      # API client, region maps
+│   └── pages/                        # Calculator + feature pages
+├── src/                              # Node.js/TypeScript Project API
+│   ├── index.ts                      # Express app + error middleware
+│   ├── routes/                       # /api/projects, /api/submission
+│   ├── engines/                      # compliance, PDF, submission packaging
+│   └── lib/                          # project/version/branding stores
+├── docs/                             # API, deployment, user & standards guides
+├── .github/workflows/ci.yml          # CI — ruff + pytest (Python) & vitest (Node)
+├── Dockerfile · docker-compose.yml
+├── requirements.txt · requirements-dev.txt · pyproject.toml
+└── .env.example
 ```
-
----
-
-## Testing
-
-194 tests across all four regions. Every endpoint is covered.
-
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
-pytest          # runs all 194 tests (path configured in pyproject.toml)
-pytest --cov=backend --cov-report=term-missing
-```
-
-| Test file | Coverage |
-|-----------|----------|
-| `test_cable_sizing.py` | 4 regions × BS 7671 / IS 3961 / AS/NZS 3008 / IEC 60364 |
-| `test_electrical_endpoints.py` | Voltage drop, max demand, short circuit, lighting, generator, PF correction, UPS, panel schedule |
-| `test_electrical.py` | Engine-level unit tests |
-| `test_hvac.py` | Cooling load, duct sizing, heating load, ventilation |
-| `test_plumbing.py` | Pipe sizing, drainage, pump, hot water, rainwater, tank |
-| `test_fire.py` | Sprinkler, fire pump, fire tank, standpipe |
-
----
-
-## Sample Output Files
-
-| File | Description |
-|------|-------------|
-| [OpenMEP_Sample_Calculation_Report.pdf](docs/sample_outputs/OpenMEP_Sample_Calculation_Report.pdf) | Cable sizing report — design basis, step-by-step workings, engineer sign-off |
-| [OpenMEP_Sample_BOQ.xlsx](docs/sample_outputs/OpenMEP_Sample_BOQ.xlsx) | Bill of Quantities — 5 sections, cable schedule, BS 7671 reference tables |
-| [OpenMEP_Technical_Documentation.pdf](docs/OpenMEP_Technical_Documentation.pdf) | Full technical spec — architecture, calculation methodologies, API design |
-| [OpenMEP_Project_Report.pdf](docs/OpenMEP_Project_Report.pdf) | Project overview report |
 
 ---
 
 ## Roadmap
 
-**v0.3**
-- [ ] React / TypeScript web frontend (replaces Streamlit for production)
-- [ ] React Native mobile app (iOS + Android)
-- [ ] North America — NEC / CEC / ASHRAE 90.1 (US/Canada)
-- [ ] South Africa — SANS 10142
-- [x] REST API key authentication — optional `X-API-Key` header auth (v0.2.0)
+**Implemented (v0.2)**
+- [x] 26 calculation modules across 4 regions
+- [x] Optional `X-API-Key` authentication
+- [x] Project workspaces, version history, branding, submission packaging (Node API)
 
-**v1.0**
-- [ ] PostgreSQL results history and multi-user team workspaces
-- [ ] AI-assisted design recommendation engine
+**Planned (v0.3)**
+- [ ] Persistent storage for projects and results (PostgreSQL)
+- [ ] BIM / IFC & Revit-CSV import/export bridge
+- [ ] Value-engineering / cost-optimization suggestions
+- [ ] North America — NEC / CEC / ASHRAE 90.1
 
----
-
-## Bugs & Feature Requests
-
-- **Bug?** [Open an issue](https://github.com/kakarot-oncloud/openmep-suite/issues/new?template=bug_report.md) — include module name, input values, and expected vs actual output.
-- **New feature or region?** [Start a discussion](https://github.com/kakarot-oncloud/openmep-suite/discussions).
-- **Security issue?** See [SECURITY.md](SECURITY.md) — do not open a public issue for vulnerabilities.
+**Planned (v1.0)**
+- [ ] Multi-user team workspaces
+- [ ] React/TypeScript production frontend
 
 ---
 
@@ -509,49 +455,27 @@ pytest --cov=backend --cov-report=term-missing
 
 ```bash
 git clone https://github.com/kakarot-oncloud/openmep-suite.git
-cd openmep
+cd openmep-suite
 git checkout -b feature/my-feature
 pip install -r requirements.txt -r requirements-dev.txt
-pytest backend/tests/ -v          # all 194 tests must pass
-ruff check backend/                # linting must pass
-git push origin feature/my-feature
-# Open a Pull Request on GitHub
+
+pytest backend/tests/ -v            # all tests must pass
+ruff check backend/ streamlit_app/  # lint must pass
+
+git push origin feature/my-feature  # then open a Pull Request
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) · [Adding a Calculator](docs/contributing/ADDING_NEW_CALCULATOR.md) · [Adding a Region](docs/contributing/ADDING_NEW_REGION.md)
-
----
-
-## Citation
-
-If you use OpenMEP in research or professional reports, cite it using [`CITATION.cff`](CITATION.cff).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Report bugs with the [issue template](.github/ISSUE_TEMPLATE/bug_report.md) (include module,
+inputs, and expected vs actual). Security issues: see [SECURITY.md](SECURITY.md) — do not open a
+public issue.
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
-
-```
-Copyright © 2025 Luquman A
-```
-
----
-
-## Acknowledgements
-
-**Made by Luquman A** ([@kakarot-oncloud](https://github.com/kakarot-oncloud))
-
-Built on the work of the engineers and committees behind BS 7671, IS 3961, AS/NZS 3008, ASHRAE 90.1, CIBSE Guides, IEC 60364, and NFPA 13/20.
-
-See [CHANGELOG.md](CHANGELOG.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [SECURITY.md](SECURITY.md)
-
----
+Released under the [MIT License](LICENSE).
 
 <div align="center">
-
-**OpenMEP — Engineering calculations should be open.**
-
-[GitHub](https://github.com/kakarot-oncloud/openmep-suite) · [Project Website](https://kakarot-oncloud.github.io/openmep-suite/) · [Discussions](https://github.com/kakarot-oncloud/openmep-suite/discussions) · [Issues](https://github.com/kakarot-oncloud/openmep-suite/issues)
-
+<sub>OpenMEP Suite · built for MEP engineers · standards-cited, open source</sub>
 </div>

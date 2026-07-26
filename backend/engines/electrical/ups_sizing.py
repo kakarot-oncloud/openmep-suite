@@ -11,8 +11,8 @@ Regions: GCC / Europe / India / Australia.
 import math
 from dataclasses import dataclass, field
 from typing import List
-from backend.engines.adapters_factory import get_electrical_adapter
 
+from backend.engines.adapters_factory import get_electrical_adapter
 
 # Standard UPS ratings (kVA) — typical 3-phase online double-conversion
 STANDARD_UPS_KVA = [
@@ -196,15 +196,17 @@ def calculate_ups_sizing(inp: UPSSizingInput) -> UPSSizingResult:
     design_kva = total_kva * (1 + inp.future_expansion_pct / 100)
     result.design_kva = round(design_kva, 2)
 
-    # UPS count based on redundancy
-    if inp.redundancy == "2N":
+    # UPS count and per-unit sizing by redundancy topology.
+    #   2N : two fully independent systems, EACH rated for the full load.
+    #   N+1: one redundant module in parallel; with N=1 each unit carries the full load.
+    #   N  : single unit, no redundancy.
+    if inp.redundancy in ("2N", "N+1"):
         num_units = 2
-    elif inp.redundancy == "N+1":
-        num_units = 2   # will size each unit at N+1
+        unit_kva = design_kva
     else:
         num_units = 1
+        unit_kva = design_kva
 
-    unit_kva = design_kva / (num_units - (1 if inp.redundancy == "N+1" else 0)) if num_units > 1 else design_kva
     selected_kva_per_unit = _next_standard_ups(unit_kva)
     total_selected_kva = selected_kva_per_unit * num_units
 
@@ -239,7 +241,10 @@ def calculate_ups_sizing(inp: UPSSizingInput) -> UPSSizingResult:
         result.battery_room_note = "LiIon modules — consult manufacturer for string configuration"
 
     # Achievable autonomy at full load
-    achievable = (design_ah * inp.battery_voltage_dc * batt_tech["depth_of_discharge"] / battery_power_w) * 60
+    if battery_power_w > 0:
+        achievable = (design_ah * inp.battery_voltage_dc * batt_tech["depth_of_discharge"] / battery_power_w) * 60
+    else:
+        achievable = 0.0
     result.achievable_autonomy_min = round(achievable, 1)
     result.required_autonomy_min = inp.required_autonomy_min
     result.autonomy_ok = achievable >= inp.required_autonomy_min

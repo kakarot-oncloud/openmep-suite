@@ -3,12 +3,14 @@ API-level tests for the remaining 8 electrical endpoints.
 Cable sizing is tested separately in test_cable_sizing.py.
 Run: pytest backend/tests/test_electrical_endpoints.py -v
 """
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.main import app
 
 client = TestClient(app)

@@ -1,7 +1,9 @@
 """Pydantic models for Fire Protection API endpoints."""
 
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
 from .electrical import RegionEnum
 
 

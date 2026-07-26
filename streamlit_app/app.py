@@ -3,18 +3,15 @@ OpenMEP — Open-Source MEP Engineering Calculation Suite
 Entry point: streamlit run streamlit_app/app.py
 """
 
-import streamlit as st
-import sys
 import os
-import requests
+import sys
 from datetime import date
 
+import requests
+import streamlit as st
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from utils import (
-    NAVY, TEAL, TEAL_L, INK, WHITE, SILVER,
-    RED, BLACK, DARK_GREY, LIGHT_GREY,
-    API_BASE, apply_theme_css
-)
+from utils import API_BASE, INK, LIGHT_GREY, NAVY, SILVER, TEAL, TEAL_L, WHITE, apply_theme_css
 
 st.set_page_config(
     page_title="OpenMEP — MEP Engineering Suite",

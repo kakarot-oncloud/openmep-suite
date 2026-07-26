@@ -1,7 +1,8 @@
-import streamlit as st
+from datetime import datetime
+
 import pandas as pd
 import requests
-from datetime import datetime
+import streamlit as st
 
 API_BASE = "http://localhost:8080/api"
 

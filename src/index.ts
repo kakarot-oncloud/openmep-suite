@@ -8,7 +8,11 @@
  * Calculation endpoints (electrical, mechanical, plumbing, fire) are handled
  * by the Python FastAPI service on port 8000.
  */
-import express from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import projectsRouter from "./routes/projects.js";
 import submissionRouter from "./routes/submission.js";
 
@@ -50,7 +54,29 @@ app.use((_req, res) => {
   });
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, "0.0.0.0", () => {
-  process.stdout.write(`OpenMEP Node.js API listening on http://0.0.0.0:${PORT}\n`);
+// ── Error-handling middleware (must be last, 4-arg signature) ───────────────────
+// Any error forwarded via next(err) — including rejected promises from async
+// handlers wrapped with asyncHandler — lands here instead of crashing the
+// process.
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const message = err instanceof Error ? err.message : "Internal server error";
+  process.stderr.write(`Unhandled error: ${message}\n`);
+  if (res.headersSent) {
+    return;
+  }
+  res.status(500).json({ status: "error", message: "Internal server error" });
 });
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+// Only start the HTTP listener when run directly (not when imported by tests).
+const isMain =
+  process.argv[1] !== undefined &&
+  import.meta.url === `file://${process.argv[1]}`;
+
+if (isMain) {
+  app.listen(PORT, "0.0.0.0", () => {
+    process.stdout.write(`OpenMEP Node.js API listening on http://0.0.0.0:${PORT}\n`);
+  });
+}
+
+export default app;

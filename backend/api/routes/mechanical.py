@@ -1,11 +1,13 @@
 """FastAPI Mechanical/HVAC Calculation Routes."""
 
-from fastapi import APIRouter, HTTPException
 from typing import Any
 
-from backend.models.mechanical import CoolingLoadRequest, DuctSegmentRequest, MultiZoneCoolingRequest
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
 from backend.engines.mechanical.cooling_load import ZoneInput, calculate_cooling_load
 from backend.engines.mechanical.duct_sizing import DuctSegment, size_duct
+from backend.models.mechanical import CoolingLoadRequest, DuctSegmentRequest, MultiZoneCoolingRequest
 
 router = APIRouter(prefix="/mechanical", tags=["Mechanical / HVAC"])
 
@@ -124,7 +126,9 @@ async def multi_zone_cooling(req: MultiZoneCoolingRequest) -> Any:
                 wall_area_m2=z.wall_area_m2,
                 wall_u_value=z.wall_u_value,
                 roof_area_m2=z.roof_area_m2,
+                roof_u_value=z.roof_u_value,
                 occupancy=z.occupancy,
+                metabolic_rate_w=z.metabolic_rate_w,
                 equipment_w_m2=z.equipment_w_m2,
                 lighting_w_m2=z.lighting_w_m2,
                 fresh_air_l_s_person=z.fresh_air_l_s_person,
@@ -162,7 +166,6 @@ async def multi_zone_cooling(req: MultiZoneCoolingRequest) -> Any:
 
 # ─── Heating Load ─────────────────────────────────────────────────────────────
 
-from pydantic import BaseModel
 
 class HeatingLoadRequest(BaseModel):
     region: str = "europe"

@@ -1,6 +1,7 @@
 """Pydantic models for Plumbing API endpoints."""
 
 from pydantic import BaseModel, Field
+
 from .electrical import RegionEnum
 
 

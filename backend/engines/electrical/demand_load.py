@@ -64,8 +64,10 @@ def calculate_maximum_demand(
         demand_kw = connected_kw * load.demand_factor
         total_connected_kw += connected_kw
         total_demand_kw += demand_kw
-        sin_phi = math.sqrt(1 - load.power_factor**2)
-        total_kvar += demand_kw * (sin_phi / load.power_factor)
+        # Clamp PF into (0, 1] so sqrt/division stay in-domain on direct engine calls.
+        pf_l = min(max(load.power_factor, 0.01), 1.0)
+        sin_phi = math.sqrt(1 - pf_l**2)
+        total_kvar += demand_kw * (sin_phi / pf_l)
 
         ltype = load.load_type
         by_type[ltype] = by_type.get(ltype, 0.0) + demand_kw

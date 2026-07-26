@@ -5,7 +5,7 @@ Uses both sync FastAPI TestClient and async httpx client for testing.
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from backend.main import app
 

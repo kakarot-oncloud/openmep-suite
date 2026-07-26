@@ -6,6 +6,7 @@ Authorities: DEWA (Dubai), ADDC (Abu Dhabi), KAHRAMAA (Qatar), SEC (Saudi Arabia
 """
 
 import numpy as np
+
 from ..base_adapter import BaseElectricalAdapter
 
 SIZES = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 630]

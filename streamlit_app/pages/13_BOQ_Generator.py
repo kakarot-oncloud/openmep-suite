@@ -1,17 +1,25 @@
 """BOQ Generator — OpenMEP"""
 
-import streamlit as st
-import sys
-import os
 import io
-import pandas as pd
+import os
+import sys
 from datetime import date
+
+import pandas as pd
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
-    apply_theme_css, RED, BLACK, WHITE, DARK_GREY, LIGHT_GREY,
-    page_header, result_card, section_title, api_post, region_selector,
-    TEAL, TEAL_L
+    DARK_GREY,
+    LIGHT_GREY,
+    TEAL_L,
+    WHITE,
+    api_post,
+    apply_theme_css,
+    page_header,
+    region_selector,
+    result_card,
+    section_title,
 )
 
 st.set_page_config(page_title="BOQ Generator — OpenMEP", page_icon="📋", layout="wide")
@@ -241,7 +249,7 @@ if st.button("Generate Priced BOQ", use_container_width=True):
         # Region-specific Excel export with appropriate schema and headers
         try:
             from openpyxl import Workbook
-            from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+            from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
             from openpyxl.utils import get_column_letter
 
             schema = result.get("boq_schema", "FIDIC")

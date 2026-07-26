@@ -3,10 +3,9 @@
 Upload logo, letterhead, and digital stamp; set company name, engineer details,
 footer text, and primary colour. All PDFs and ZIP packages will use these assets.
 """
-import streamlit as st
+
 import requests
-import base64
-from io import BytesIO
+import streamlit as st
 
 API = "http://localhost:3000/api"
 
@@ -21,7 +20,7 @@ def fetch_projects():
         r = requests.get(f"{API}/projects", timeout=8)
         r.raise_for_status()
         return r.json()
-    except Exception as exc:
+    except Exception:
         return []
 
 projects = fetch_projects()
@@ -138,7 +137,7 @@ for field, cfg in ASSET_CONFIG.items():
                 except Exception as exc:
                     st.error(f"Upload failed: {exc}")
         with col_d:
-            if current_status == "[set]" and st.button(f"Remove", key=f"del_{field}"):
+            if current_status == "[set]" and st.button("Remove", key=f"del_{field}"):
                 try:
                     r = requests.delete(
                         f"{API}/projects/{project_id}/branding/{field}",
