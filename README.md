@@ -276,7 +276,35 @@ curl -X POST http://localhost:8000/api/electrical/maximum-demand \
 curl -X POST http://localhost:8000/api/plumbing/pipe-sizing \
   -H "Content-Type: application/json" \
   -d '{"region":"gcc","flow_units":120,"pipe_material":"copper"}'
+
+# Batch cable schedule — size many circuits against one design basis
+curl -X POST http://localhost:8000/api/electrical/cable-schedule \
+  -H "Content-Type: application/json" \
+  -d '{"design_basis":{"region":"gcc","sub_region":"dewa","ambient_temp_c":45},
+       "circuits":[{"circuit_ref":"C1","load_kw":45,"cable_length_m":80},
+                   {"circuit_ref":"C2","load_kw":160,"cable_length_m":120}]}'
+
+# Export any table to Excel (returns an .xlsx download)
+curl -X POST http://localhost:8000/api/exports/table.xlsx -o schedule.xlsx \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Cable Schedule","columns":["Ref","Cable"],"rows":[["C1","25 mm²"]]}'
+
+# Persistent project workspace (survives restarts)
+curl -X POST http://localhost:8000/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tower A","design_basis":{"region":"gcc","sub_region":"dewa","ambient_temp_c":45}}'
 ```
+
+### Persistence, design basis & batch (new in v0.3)
+
+- **Project workspaces** — `POST/GET/PUT/DELETE /api/projects` store a project, its
+  **design basis** (region, ambient, PF, defaults), and saved calculation results in SQLite so
+  they survive restarts. Save a result with `POST /api/projects/{id}/results`.
+- **Batch cable schedule** — `POST /api/electrical/cable-schedule` sizes a whole load schedule
+  in one call, each circuit inheriting the design basis unless it overrides a value.
+- **CSV / Excel export** — `POST /api/exports/table.{xlsx,csv}` exports any `{columns, rows}`
+  table; `POST /api/exports/cable-schedule.xlsx` sizes a batch and returns the spreadsheet.
+- In the Web UI these are the **Cable Schedule (Batch)** and **Projects** pages.
 
 **Rate limits:** 60 requests/min per IP on calculation endpoints, 10/min on report generation.
 Exceeded limits return HTTP 429 with a `Retry-After` header.
@@ -310,8 +338,11 @@ per module with the standard clause. `POST /api/submission/compliance-check`.
 Generates a ready-to-send ZIP (calculation PDFs, compliance matrix, branding) for a project.
 `POST /api/submission/package`.
 
-> The Project API stores data in-memory for evaluation. See the [Roadmap](#roadmap) for
-> persistence and the planned BIM/IFC bridge and value-engineering optimizer.
+> **Two project stores exist.** The **Calculation API** (port 8000) has a persistent,
+> SQLite-backed project store (`/api/projects`, see [above](#persistence-design-basis--batch-new-in-v03))
+> — this is the one the Web UI uses. The **Node.js Project API** (port 8080) provides the
+> submission/branding/versioning workflow and keeps its data in-memory for evaluation.
+> See the [Roadmap](#roadmap) for the planned BIM/IFC bridge and value-engineering optimizer.
 
 ---
 
@@ -325,6 +356,7 @@ All settings are environment variables (see [`.env.example`](.env.example) for t
 | `ALLOWED_ORIGINS` | `http://localhost:8501,http://localhost:8000` | Comma-separated CORS allow-list |
 | `API_BASE` | `http://localhost:8000` | Base URL the Streamlit UI calls |
 | `DEBUG` | `false` | Verbose error payloads (never enable in production) |
+| `OPENMEP_DB_PATH` | `openmep_data.db` | SQLite file for the persistent project store |
 | `PORT` | `8080` | Node.js Project API port |
 
 ---
@@ -360,7 +392,7 @@ Full disclosure policy → [SECURITY.md](SECURITY.md).
 
 ## Testing
 
-The backend ships **149 automated tests** (~83 % line coverage), run in CI on every push and PR.
+The backend ships **167 automated tests** (~84 % line coverage), run in CI on every push and PR.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
@@ -376,6 +408,8 @@ ruff check backend/ streamlit_app/             # lint
 | `test_hvac.py` | Cooling load (4 regions), duct sizing, heating, ventilation |
 | `test_plumbing.py` | Pipe sizing, drainage, pump, hot water, rainwater, tank |
 | `test_fire.py` | Sprinkler design flow, fire pump, fire tank |
+| `test_projects.py` | Persistent project store CRUD, saved results, design basis |
+| `test_batch_and_exports.py` | Batch cable schedule + CSV/Excel export |
 
 The Node.js Project API has its own Vitest suite (`cd src && npm test`).
 
@@ -434,13 +468,16 @@ openmep-suite/
 
 ## Roadmap
 
-**Implemented (v0.2)**
+**Implemented (v0.3)**
 - [x] 26 calculation modules across 4 regions
 - [x] Optional `X-API-Key` authentication
-- [x] Project workspaces, version history, branding, submission packaging (Node API)
+- [x] **Persistent project workspaces + design basis** (SQLite) with saved results
+- [x] **Batch cable-schedule sizing** from a load schedule
+- [x] **CSV / Excel export** for schedules and tables
+- [x] Version history, branding, submission packaging (Node API)
 
-**Planned (v0.3)**
-- [ ] Persistent storage for projects and results (PostgreSQL)
+**Planned (v0.4)**
+- [ ] Postgres backend option for multi-instance deployments
 - [ ] BIM / IFC & Revit-CSV import/export bridge
 - [ ] Value-engineering / cost-optimization suggestions
 - [ ] North America — NEC / CEC / ASHRAE 90.1

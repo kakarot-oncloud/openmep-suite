@@ -297,6 +297,31 @@ def api_get(endpoint: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+def api_delete(endpoint: str) -> bool:
+    """DELETE request; returns True on success."""
+    try:
+        resp = requests.delete(f"{API_BASE}{endpoint}", timeout=10)
+        resp.raise_for_status()
+        return True
+    except Exception as e:
+        st.error(f"API error: {e}")
+        return False
+
+
+def api_post_bytes(endpoint: str, payload: Dict[str, Any]) -> Optional[bytes]:
+    """POST and return the raw response body (for CSV/Excel file downloads)."""
+    try:
+        resp = requests.post(f"{API_BASE}{endpoint}", json=payload, timeout=30)
+        resp.raise_for_status()
+        return resp.content
+    except requests.exceptions.ConnectionError:
+        st.error("Cannot connect to the calculation engine. Ensure the FastAPI server is running on port 8000.")
+        return None
+    except Exception as e:
+        st.error(f"Export error: {e}")
+        return None
+
+
 def region_selector(key_prefix: str = ""):
     """True 3-level hierarchical region selector.
     Level 1: Region (GCC / Europe / India / Australia)

@@ -31,8 +31,21 @@ from backend.models.electrical import (
     ShortCircuitRequest,
     VoltageDropRequest,
 )
+from backend.models.project import CableScheduleBatchRequest
+from backend.services.cable_schedule import size_schedule
 
 router = APIRouter(prefix="/electrical", tags=["Electrical Engineering"])
+
+
+@router.post("/cable-schedule", summary="Batch Cable Sizing from a Load Schedule")
+async def cable_schedule_batch(req: CableScheduleBatchRequest) -> Any:
+    """Size many circuits at once, each inheriting the project design basis."""
+    try:
+        return {"status": "success", **size_schedule(req.design_basis, req.circuits)}
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Batch sizing error: {str(e)}")
 
 
 # ─── Australia method/cable type normalization ─────────────────────────────────

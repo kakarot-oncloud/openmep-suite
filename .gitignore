@@ -90,3 +90,5 @@ scripts/post-merge.sh
 scripts/tsconfig.json
 scripts/src/
 scripts/node_modules/
+*.db-wal
+*.db-shm

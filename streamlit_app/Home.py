@@ -241,7 +241,7 @@ for i, rd in enumerate(regions_data):
 st.markdown("<hr style='border-color: #333; margin: 2rem 0;'>", unsafe_allow_html=True)
 st.markdown(f"""
 <div style="text-align: center; color: {LIGHT_GREY}; font-size: 0.8rem;">
-    <b style="color: {RED}">OpenMEP</b> — Open-Source MEP Engineering Suite v0.2.0 &nbsp;|&nbsp;
+    <b style="color: {RED}">OpenMEP</b> — Open-Source MEP Engineering Suite v0.3.0 &nbsp;|&nbsp;
     MIT License &nbsp;|&nbsp;
     <a href="{API_BASE}/docs" style="color: {RED}; text-decoration: none;">API Docs</a>
 </div>
