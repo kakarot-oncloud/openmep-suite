@@ -636,9 +636,122 @@ function complianceNotes(checks: unknown): string[] {
     });
 }
 
+// ── Fire ─────────────────────────────────────────────────────────────────────
+
+const sprinkler: CalculatorConfig = {
+  slug: "sprinkler",
+  name: "Sprinkler Design",
+  discipline: "Fire",
+  icon: "🔥",
+  standard: "BS EN 12845 / NFPA 13",
+  blurb: "Sprinkler design flow, system flow and pump/tank duty from hazard class and protected area.",
+  endpoint: "/api/fire/sprinkler",
+  fields: [
+    regionField,
+    { name: "occupancy_hazard", label: "Hazard class", type: "select", default: "OH1", options: ["LH", "OH1", "OH2", "EH1", "EH2"].map((v) => ({ value: v, label: v })) },
+    { name: "area_protected_m2", label: "Protected area (m²)", type: "number", default: 2500 },
+    { name: "ceiling_height_m", label: "Ceiling height (m)", type: "number", default: 4, step: 0.5 },
+    { name: "hose_allowance_l_min", label: "Hose allowance (L/min)", type: "number", default: 500 },
+  ],
+  result: (d) => ({
+    headline: { label: "Total system flow", value: n(d.total_system_flow_l_min), unit: "L/min" },
+    stats: [
+      { label: "Design flow", value: n(d.design_flow_l_min), unit: "L/min" },
+      { label: "Residual pressure", value: n(d.residual_pressure_bar), unit: "bar" },
+      { label: "Pump power", value: n(d.pump_power_kw), unit: "kW" },
+      { label: "Tank capacity", value: n(d.tank_capacity_m3), unit: "m³" },
+      { label: "Sprinklers (design area)", value: n(d.num_sprinklers_design_area) },
+    ],
+    note: `${d.hazard_class ?? ""} · ${d.design_standard ?? ""}`,
+  }),
+};
+
+const firePump: CalculatorConfig = {
+  slug: "fire-pump",
+  name: "Fire Pump Sizing",
+  discipline: "Fire",
+  icon: "🔥",
+  standard: "BS EN 12845 / NFPA 20",
+  blurb: "Fire pump duty head, motor and jockey pump from sprinkler, hose-reel and hydrant demand.",
+  endpoint: "/api/fire/fire-pump",
+  fields: [
+    regionField,
+    { name: "system_type", label: "System", type: "select", default: "wet_riser", options: ["wet_riser", "combined", "deluge", "foam"].map((v) => ({ value: v, label: v.replace(/_/g, " ") })) },
+    { name: "sprinkler_demand_l_min", label: "Sprinkler demand (L/min)", type: "number", default: 2000 },
+    { name: "hose_reel_demand_l_min", label: "Hose-reel demand (L/min)", type: "number", default: 600 },
+    { name: "static_pressure_required_bar", label: "Static pressure (bar)", type: "number", default: 6.5, step: 0.5 },
+    { name: "pump_efficiency", label: "Pump efficiency", type: "number", default: 0.72, step: 0.01 },
+  ],
+  result: (d) => ({
+    headline: { label: "Selected motor", value: n(d.selected_motor_kw), unit: "kW" },
+    stats: [
+      { label: "Total flow", value: n(d.total_flow_l_min), unit: "L/min" },
+      { label: "Dynamic head", value: n(d.total_dynamic_head_m), unit: "m" },
+      { label: "Duty pump", value: n(d.duty_pump_kw), unit: "kW" },
+      { label: "Jockey motor", value: n(d.jockey_motor_kw), unit: "kW" },
+    ],
+    note: String(d.pump_set_description ?? ""),
+  }),
+};
+
+const fireTank: CalculatorConfig = {
+  slug: "fire-tank",
+  name: "Fire Storage Tank",
+  discipline: "Fire",
+  icon: "🔥",
+  standard: "BS EN 12845 / NFPA 22",
+  blurb: "Fire water storage volume, compartmentation and inlet flow for the required supply duration.",
+  endpoint: "/api/fire/fire-tank",
+  fields: [
+    regionField,
+    { name: "system_type", label: "System", type: "select", default: "sprinkler", options: ["sprinkler", "wet_riser", "combined", "foam"].map((v) => ({ value: v, label: v.replace(/_/g, " ") })) },
+    { name: "total_flow_l_min", label: "Total flow (L/min)", type: "number", default: 2000 },
+    { name: "supply_duration_min", label: "Supply duration (min)", type: "number", default: 60 },
+    { name: "number_of_compartments", label: "Compartments", type: "number", default: 2 },
+    { name: "refill_time_hr", label: "Refill time (hr)", type: "number", default: 4, step: 0.5 },
+  ],
+  result: (d) => ({
+    headline: { label: "Total tank capacity", value: n(d.total_tank_capacity_m3), unit: "m³" },
+    stats: [
+      { label: "Volume required", value: n(d.total_volume_required_m3), unit: "m³" },
+      { label: "Per compartment", value: n(d.selected_tank_per_compartment_m3), unit: "m³" },
+      { label: "Compartments", value: n(d.number_of_compartments) },
+      { label: "Inlet flow", value: n(d.inlet_flow_l_min), unit: "L/min" },
+    ],
+  }),
+};
+
+const standpipe: CalculatorConfig = {
+  slug: "standpipe",
+  name: "Standpipe System",
+  discipline: "Fire",
+  icon: "🔥",
+  standard: "NFPA 14 / BS 9990",
+  blurb: "Wet/dry riser flow, pressure and riser diameter by system class and building height.",
+  endpoint: "/api/fire/standpipe",
+  fields: [
+    regionField,
+    { name: "system_class", label: "System class", type: "select", default: "III", options: ["I", "II", "III"].map((v) => ({ value: v, label: `Class ${v}` })) },
+    { name: "building_height_m", label: "Building height (m)", type: "number", default: 30 },
+    { name: "num_floors", label: "Floors", type: "number", default: 10 },
+    { name: "num_operating_standpipes", label: "Operating standpipes", type: "number", default: 2 },
+    { name: "flow_per_standpipe_l_min", label: "Flow / standpipe (L/min)", type: "number", default: 950 },
+  ],
+  result: (d) => ({
+    headline: { label: "Riser main", value: `DN${n(d.selected_dn)}`, unit: `(${n(d.riser_main_diameter_mm)} mm)` },
+    stats: [
+      { label: "Total flow", value: n(d.total_flow_l_min), unit: "L/min" },
+      { label: "Pressure required", value: n(d.total_pressure_required_bar), unit: "bar" },
+      { label: "Hose stations", value: n(d.num_hose_stations) },
+      { label: "Standpipes", value: n(d.num_operating_standpipes) },
+    ],
+  }),
+};
+
 export const ELECTRICAL_CALCS: CalculatorConfig[] = [
   voltageDrop, maximumDemand, shortCircuit, lighting, pfCorrection, generator, ups, panelSchedule,
 ];
+const FIRE_CALCS: CalculatorConfig[] = [sprinkler, firePump, fireTank, standpipe];
 const MECHANICAL_CALCS: CalculatorConfig[] = [ductSizing, heatingLoad, ventilation];
 const PLUMBING_CALCS: CalculatorConfig[] = [pipeSizing, drainageSizing, pumpSizing, hotWater, rainwater, tankSizing];
 
@@ -646,6 +759,7 @@ export const CALCULATORS: CalculatorConfig[] = [
   ...ELECTRICAL_CALCS,
   ...MECHANICAL_CALCS,
   ...PLUMBING_CALCS,
+  ...FIRE_CALCS,
 ];
 
 export function getCalculator(slug: string): CalculatorConfig | undefined {

@@ -15,13 +15,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   **light and dark mode** (system-aware, persisted, no flash).
 - Design system with CSS-variable theming, reusable UI primitives, sticky navbar and footer.
 - **Landing site** (hero, features, disciplines, regions, CTA) plus a **Modules catalog** of all 26 modules.
-- **19 live calculators** wired to the FastAPI API via a config-driven framework
-  (one generic page + one config each): all Electrical (Cable Sizing, Voltage Drop,
-  Maximum Demand, Short Circuit, Lighting, PF Correction, Generator, UPS, Panel Schedule),
-  all Mechanical (Cooling Load, Duct Sizing, Heating Load, Ventilation) and all Plumbing
-  (Pipe, Drainage, Pump, Hot Water, Rainwater, Tank). Row-table editors for load/circuit
-  schedules; typed client, loading/error states, result cards and compliance badges.
-  Every endpoint verified live (200 + populated result). Fire and Reports modules next.
+- **All 26 modules live** in the web app. 23 single-form calculators run through a
+  config-driven framework (one generic page + one config each) — all Electrical, Mechanical,
+  Plumbing and Fire (Cable Sizing, Voltage Drop, Maximum Demand, Short Circuit, Lighting,
+  PF Correction, Generator, UPS, Panel Schedule, Cooling Load, Duct, Heating, Ventilation,
+  Pipe, Drainage, Pump, Hot Water, Rainwater, Tank, Sprinkler, Fire Pump, Fire Tank, Standpipe).
+  The 3 Reports/Compliance tools (BOQ Generator, Compliance Checker, Report Builder) are
+  dedicated pages with take-off/row-table inputs and result tables.
+- Reusable row-table editor for load/circuit/take-off schedules; typed client, loading and
+  error states, result cards, compliance badges and per-check pass/fail tables.
+- Every endpoint verified live (HTTP 200 + populated result).
 - **Deployment**: multi-stage `frontend/Dockerfile` (Vite build → Nginx) that serves the
   static SPA and proxies `/api` to the backend; `web` service added to `docker-compose.yml`
   (port 3000); `VITE_API_BASE` / `API_UPSTREAM` configuration for any VPS.
